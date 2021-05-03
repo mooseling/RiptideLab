@@ -1,3 +1,6 @@
+/* jshint esversion:8 */
+/* jshint -W027 */
+
 const scryfall = (function(){
   return {getCardByName};
 
