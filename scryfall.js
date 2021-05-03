@@ -2,14 +2,25 @@
 /* jshint -W027 */
 
 const scryfall = (function(){
+  const cardCache = {};
+
   return {getCardByName};
 
 
   async function getCardByName(cardName) {
+    const cachedCard = cardCache[cardName];
+    if (cachedCard)
+      return cachedCard;
+    return getCardFromApiByName(cardName);
+  }
+
+
+  async function getCardFromApiByName(cardName) {
     const endpoint = 'cards/named?exact=' + cardName;
 
     const response = await scryfall.api.get(endpoint);
-    return response.json();
+    const card = cardCache[cardName] = await response.json();
+    return card;
   }
 }());
 
