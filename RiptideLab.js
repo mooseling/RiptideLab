@@ -2,18 +2,21 @@
 /* jshint -W027 */
 
 const RiptideLab = (function(){
-  const cardCache = {};
-
   return {Card};
 
 
   function Card(cardName) {
-    return {getDetails};
+    return {getImageURI};
+
+
+    async function getImageURI() {
+      const cardDetails = await getDetails();
+      return cardDetails.imageURI;
+    }
+
 
     async function getDetails() {
-      if (cardCache[cardName])
-        return cardCache[cardName];
-      return RiptideLab.cardService.getCard(cardName);
+      return await RiptideLab.cardService.getCard(cardName);
     }
   }
 }());
@@ -29,7 +32,9 @@ RiptideLab.cardService = (function(){
   async function getCard(cardName) {
     if (cardCache[cardName])
       return translateToRiptideLab(cardCache[cardName]);
-    return translateToRiptideLab(getCardFromExternalService(cardName));
+
+    const externalCard = await getCardFromExternalService(cardName);
+    return translateToRiptideLab(externalCard);
   }
 
 
