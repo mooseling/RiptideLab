@@ -14,6 +14,7 @@ const scryfall = (function(){
 }());
 
 
+// This is separate so we can mock it for testing one day
 scryfall.api = (function(){
   const baseUrl = 'https://api.scryfall.com';
 
@@ -21,8 +22,6 @@ scryfall.api = (function(){
 
 
   async function get(endpoint) {
-    const url = `${baseUrl}/${endpoint}`;
-
-    return fetch(url);
+    return fetch(`${baseUrl}/${endpoint}`);
   }
 }());
