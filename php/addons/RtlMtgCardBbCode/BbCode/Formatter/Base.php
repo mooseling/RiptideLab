@@ -308,6 +308,43 @@ class Base
             return implode("<br/>", $cards);
         }
     }
+
+    public static function parseTagCardTest($children, $option, $tag, $options, $parentClass)
+    {
+        $qtyAndNameRegex = '/([\s0-9-]*)(.*)/';
+
+        if ($tag['option'] != NULL)
+        {
+            $card = $tag['option'];
+            $card = strtolower(trim($card));
+            preg_match($qtyAndNameRegex, $card, $bits);
+            $qty = $bits[1];
+            $cardName = $bits[2];
+            $linkText = $tag['children'][0];
+
+            return "$qty<a data-card-name='$cardName' href='https://scryfall.com/search?q=$cardName'>$linkText<script>setTimeout(() => RiptideLab.addHandlerFromScriptTag(), 0)</script></a>";
+        }
+        else
+        {
+            $txt = $tag['children'][0];
+
+            $cards = preg_split("/[\r\n]/", $txt);
+
+            foreach($cards as &$card) {
+                $card = trim($card);
+                $lcCard = strtolower($card);
+                preg_match($qtyAndNameRegex, $lcCard, $bits);
+                preg_match($qtyAndNameRegex, $card, $origBits);
+                $qty = $bits[1];
+                $cardName = $bits[2];
+                $linkText = $origBits[2];
+
+                $card = "$qty<a data-card-name='$cardName' href='https://scryfall.com/search?q=$cardName'>$linkText<script>setTimeout(() => RiptideLab.addHandlerFromScriptTag(), 0)</script></a>";
+            }
+
+            return implode("<br/>", $cards);
+        }
+    }
 }
 
 // $tag['children'], $tag['option'], $tag, $options, $this
