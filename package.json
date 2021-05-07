@@ -1,0 +1,23 @@
+{
+  "name": "riptidelab",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "concat": "scripts/concat.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mooseling/RiptideLab.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mooseling/RiptideLab/issues"
+  },
+  "homepage": "https://github.com/mooseling/RiptideLab#readme",
+  "devDependencies": {
+    "concat": "^1.0.3"
+  }
+}
