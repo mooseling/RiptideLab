@@ -1,4 +1,8 @@
 {
+  "browser":true,
+  "undef":true,
+  "unused":true,
   "esversion":8,
-  "-W027":true
+  "-W027":true,
+  "globals":{"Popper":true, "RiptideLab":true}
 }
