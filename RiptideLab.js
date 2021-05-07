@@ -1,6 +1,3 @@
-/* jshint esversion:8 */
-/* jshint -W027 */
-
 const RiptideLab = (function(){
   return {Card};
 
