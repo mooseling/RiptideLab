@@ -2,7 +2,7 @@
   "browser":true,
   "undef":true,
   "unused":true,
-  "esversion":8,
+  "esversion":11,
   "-W027":true,
   "globals":{"Popper":true, "RiptideLab":true}
 }

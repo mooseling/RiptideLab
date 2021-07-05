@@ -16,9 +16,7 @@ RiptideLab.cardService = (function(){
 
   function translateToRiptideLab(cardObject) {
     const riptideCard = {
-      // jshint ignore:start
       imageURI: cardObject?.image_uris?.normal
-      // jshint ignore:end
     };
 
     return riptideCard;
