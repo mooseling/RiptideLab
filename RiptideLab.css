@@ -1,8 +1,0 @@
-#card-tooltip {
-  width:200pt;
-  display: none;
-}
-
-#card-tooltip[data-show] {
-  display: block;
-}
