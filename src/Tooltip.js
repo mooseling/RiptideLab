@@ -33,11 +33,11 @@ RiptideLab.Tooltip = (function(){
   }
 
   async function showCard(card) {
+    tooltipElement.innerHTML = '';
     const imageURI = await card.getImageURI();
     const img = document.createElement('img');
     img.style.width = '200pt';
     img.src = imageURI;
-    tooltipElement.innerHTML = '';
     tooltipElement.appendChild(img);
   }
 
