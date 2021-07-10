@@ -5,14 +5,14 @@ RiptideLab.Tooltip = (function(){
 
   return {show, hide, update};
 
-  async function show(options) {
+  function show(options) {
     if (options)
       update(options);
     tooltipElement.style.display = '';
     document.body.appendChild(tooltipElement);
   }
 
-  async function update({card, html, top, left, event}) {
+  function update({card, html, top, left, event}) {
     if (html !== undefined)
       tooltipElement.innerHTML = html;
     else if (card)
@@ -85,7 +85,7 @@ RiptideLab.Tooltip = (function(){
       lastTouchedCardTag = element;
   });
 
-  document.addEventListener('click', async function(event) {
+  document.addEventListener('click', function(event) {
     const element = event.target;
     if (lastTouchedCardTag) {
       if (element === lastTouchedCardTag) {
@@ -97,7 +97,7 @@ RiptideLab.Tooltip = (function(){
     }
   });
 
-  document.addEventListener('mouseover', async function(event) {
+  document.addEventListener('mouseover', function(event) {
     const element = event.target;
     if (!needsTooltip(element))
       return;
@@ -110,7 +110,7 @@ RiptideLab.Tooltip = (function(){
       hideTooltip();
   });
 
-  document.addEventListener('mousemove', async function(event) {
+  document.addEventListener('mousemove', function(event) {
     const element = event.target;
     if (!isCardTag(element))
       return;

@@ -32,7 +32,7 @@ RiptideLab.cardService = (function(){
   }
 
 
-  async function get(endpoint) {
+  function get(endpoint) {
     return fetch(`${baseUrl}/${endpoint}`);
   }
 }());
