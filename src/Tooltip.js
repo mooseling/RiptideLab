@@ -12,12 +12,19 @@ RiptideLab.Tooltip = (function(){
     document.body.appendChild(tooltipElement);
   }
 
-  function update({card, html, top, left, event}) {
+  function update(options) {
+    updateContent(options);
+    updatePosition(options);
+  }
+
+  function updateContent({html, card}) {
     if (html !== undefined)
       tooltipElement.innerHTML = html;
     else if (card)
       showCard(card);
+  }
 
+  function updatePosition({top, left, event}) {
     if (event) { // a mouse-event to put the tooltip next to
       setPositionFromEvent(event);
     } else {
