@@ -24,6 +24,15 @@ RiptideLab.Tooltip = (function(){
       showCard(card);
   }
 
+  async function showCard(card) {
+    tooltipElement.innerHTML = '';
+    const imageURI = await card.getImageURI();
+    const img = document.createElement('img');
+    img.style.width = '200pt';
+    img.src = imageURI;
+    tooltipElement.appendChild(img);
+  }
+
   function updatePosition({top, left, event}) {
     if (event) { // a mouse-event to put the tooltip next to
       setPositionFromEvent(event);
@@ -33,19 +42,6 @@ RiptideLab.Tooltip = (function(){
       if (left !== undefined)
         tooltipElement.style.left = left;
     }
-  }
-
-  function hide() {
-    tooltipElement.style.display = 'none';
-  }
-
-  async function showCard(card) {
-    tooltipElement.innerHTML = '';
-    const imageURI = await card.getImageURI();
-    const img = document.createElement('img');
-    img.style.width = '200pt';
-    img.src = imageURI;
-    tooltipElement.appendChild(img);
   }
 
   function setPositionFromEvent(event) {
@@ -73,6 +69,10 @@ RiptideLab.Tooltip = (function(){
     return (event.clientY +
       (docElement.scrollTop || scrollTop) -
       (docElement.clientTop || 0));
+  }
+
+  function hide() {
+    tooltipElement.style.display = 'none';
   }
 })();
 
