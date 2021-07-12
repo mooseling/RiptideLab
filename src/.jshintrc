@@ -4,5 +4,6 @@
   "unused":true,
   "esversion":11,
   "-W027":true,
+  "-W014":true,
   "globals":{"RiptideLab":true}
 }
