@@ -45,8 +45,11 @@ RiptideLab.Tooltip = (function(){
   }
 
   function setPositionFromEvent(event) {
-    tooltipElement.style.top = getTop(event) + 8;
-    tooltipElement.style.left = getLeft(event) + 8;
+    const eventTop = getTop(event);
+    const eventLeft = getLeft(event);
+    const newCoords = fitToScreen(eventLeft, eventTop);
+    tooltipElement.style.top = newCoords[1]; // + 8;
+    tooltipElement.style.left = newCoords[0]; // + 8;
   }
 
   function getLeft(event) {
@@ -73,6 +76,67 @@ RiptideLab.Tooltip = (function(){
 
   function hide() {
     tooltipElement.style.display = 'none';
+  }
+
+
+
+
+
+  function fitToScreen(posX, posY) {
+    const scroll = scrollOffsets();
+    const viewport = viewportSize();
+    const {offsetWidth, offsetHeight} = tooltipElement;
+
+    posX += 8; // Offset from cursor a little
+
+    /* decide if we need to switch sides for the tooltip */
+    /* too big for X */
+    if ((posX + offsetWidth - scroll[0]) >= (viewport[0] - 15))
+      posX = posX - offsetWidth - 20;
+    /* too far left */
+    if (posX < scroll[0] + 15)
+      posX = scroll[0] + 15;
+    /* If it's too high, we move it down. */
+    if (posY - scroll[1] < 0)
+      posY += scroll[1] - posY + 5;
+    /* If it's too low, we move it up. */
+    if (posY + offsetHeight - scroll[1] > viewport[1])
+      posY -= posY + offsetHeight + 5 - scroll[1] - viewport[1];
+
+    return [posX, posY];
+  }
+
+  function scrollOffsets() {
+    return [
+      window.visualViewport
+        ? window.visualViewport.pageLeft
+        : window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft,
+      window.visualViewport
+        ? window.visualViewport.pageTop
+        : window.pageYOffset || document.documentElement.scrollTop  || document.body.scrollTop
+    ];
+  }
+
+  function viewportSize () {
+    if (window.visualViewport)
+      return [window.visualViewport.width, window.visualViewport.height];
+
+    let ua = navigator.userAgent, rootElement;
+    if (ua.indexOf('AppleWebKit/') > -1 && !document.evaluate) {
+      rootElement = document;
+    } else if (Object.prototype.toString.call(window.opera) === '[object Opera]' && window.parseFloat(window.opera.version()) < 9.5) {
+      rootElement = document.body;
+    } else {
+      rootElement = document.documentElement;
+    }
+
+    // IE8 in quirks mode returns 0 for these sizes
+    const size = [rootElement.clientWidth, rootElement.clientHeight];
+    if (size[1] === 0) {
+      return [document.body.clientWidth, document.body.clientHeight];
+    } else {
+      return size;
+    }
   }
 })();
 
