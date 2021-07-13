@@ -2,8 +2,11 @@ RiptideLab.Tooltip = (function(){
   const tooltipElement = document.createElement('div');
   tooltipElement.style.position = 'fixed';
   tooltipElement.style.display = 'none';
+  const props = {
+    isTouch:false
+  };
 
-  return {show, hide, update};
+  return {show, hide, update, props};
 
   function show(options) {
     if (options)
@@ -13,8 +16,13 @@ RiptideLab.Tooltip = (function(){
   }
 
   function update(options) {
+    updateProps(options);
     updateContent(options);
     updatePosition(options);
+  }
+
+  function updateProps({isTouch}) {
+    props.isTouch = Boolean(isTouch); // We want to convert undefined to false
   }
 
   function updateContent({html, card}) {
@@ -53,6 +61,9 @@ RiptideLab.Tooltip = (function(){
     if (event.pageX !== undefined)
       return event.pageX;
 
+    if (event.touches?.[0].pageX !== undefined)
+      return event.touches?.[0].pageX;
+
     const docElement = document.documentElement;
     const scrollLeft = document.body?.scrollLeft || 0;
     return (event.clientX +
@@ -63,6 +74,9 @@ RiptideLab.Tooltip = (function(){
   function getTop(event) {
     if (event.pageY !== undefined)
       return event.pageY;
+
+    if (event.touches?.[0].pageY !== undefined)
+      return event.touches?.[0].pageY;
 
     const docElement = document.documentElement;
     const scrollTop = document.body?.scrollTop || 0;
@@ -144,49 +158,38 @@ RiptideLab.Tooltip = (function(){
 // ====================================================
 
 (function() {
-  let lastTouchedCardTag = null;
   let currentTooltippedElement = null;
 
   document.addEventListener('touchstart', function(event) {
-    const element = event.target;
-    if (element.classList.contains('card-hover'))
-      lastTouchedCardTag = element;
-  });
-
-  document.addEventListener('click', function(event) {
-    const element = event.target;
-    if (lastTouchedCardTag) {
-      if (element === lastTouchedCardTag) {
-        if (needsTooltip(element))
-          showTooltip(event);
-      } else {
-        hideTooltip();
-      }
+    if (needsTooltip(event)) {
+      event.preventDefault();
+      showTooltip(event, {isTouch:true});
     }
+  }, {passive:false});
+
+  document.addEventListener('click', function() {
+    if (RiptideLab.Tooltip.props.isTouch)
+      hideTooltip();
   });
 
   document.addEventListener('mouseover', function(event) {
-    const element = event.target;
-    if (!needsTooltip(element))
-      return;
-    showTooltip(event);
+    if (needsTooltip(event))
+      showTooltip(event);
   });
 
   document.addEventListener('mouseout', function(event) {
-    const element = event.target;
-    if (element === currentTooltippedElement)
+    if (event.target === currentTooltippedElement)
       hideTooltip();
   });
 
   document.addEventListener('mousemove', function(event) {
-    const element = event.target;
-    if (!isCardTag(element))
-      return;
-    RiptideLab.Tooltip.update({event});
+    if (isCardTag(event.target))
+      RiptideLab.Tooltip.update({event});
   });
 
 
-  function needsTooltip(element) {
+  function needsTooltip(event) {
+    const element = event.target;
     return isCardTag(element) && currentTooltippedElement !== element;
   }
 
@@ -197,11 +200,11 @@ RiptideLab.Tooltip = (function(){
   }
 
 
-  function showTooltip(event) {
+  function showTooltip(event, isTouch) {
     const element = event.target;
     const card = RiptideLab.Card(element.dataset.cardName);
-    RiptideLab.Tooltip.show({card, event});
     currentTooltippedElement = element;
+    RiptideLab.Tooltip.show({card, event, isTouch});
   }
 
   function hideTooltip() {
