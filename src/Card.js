@@ -3,12 +3,8 @@ RiptideLab.Card = function(cardName) {
 
   async function getViewer() {
     const imageURI = await getImageURI();
-    const viewer = document.createElement('div');
-    viewer.style = 'display:inline-block;background-color:#f7f7f7;padding:8pt;border-color:#ccc';
-    const img = document.createElement('img');
-    img.style.width = '200pt';
-    img.src = imageURI;
-    viewer.appendChild(img);
+    const viewer = createViewer();
+    viewer.appendChild(createCardImg(imageURI));
     return viewer;
   }
 
@@ -19,5 +15,18 @@ RiptideLab.Card = function(cardName) {
 
   async function getDetails() {
     return await RiptideLab.cardService.getCard(cardName);
+  }
+
+  function createViewer() {
+    const viewer = document.createElement('div');
+    viewer.style = 'display:inline-block;background-color:#f7f7f7;padding:8pt;border-color:#ccc';
+    return viewer;
+  }
+
+  function createCardImg(imageURI) {
+    const img = document.createElement('img');
+    img.style.width = '200pt';
+    img.src = imageURI;
+    return img;
   }
 };
