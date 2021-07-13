@@ -26,11 +26,8 @@ RiptideLab.Tooltip = (function(){
 
   async function showCard(card) {
     tooltipElement.innerHTML = '';
-    const imageURI = await card.getImageURI();
-    const img = document.createElement('img');
-    img.style.width = '200pt';
-    img.src = imageURI;
-    tooltipElement.appendChild(img);
+    const viewer = await card.getViewer();
+    tooltipElement.appendChild(viewer);
   }
 
   function updatePosition({top, left, event}) {
