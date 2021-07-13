@@ -34,7 +34,7 @@ RiptideLab.Tooltip = (function(){
 
   async function showCard(card) {
     tooltipElement.innerHTML = '';
-    const viewer = await card.getViewer();
+    const viewer = await card.getViewer({isTouch:props.isTouch});
     tooltipElement.appendChild(viewer);
   }
 

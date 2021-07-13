@@ -16,6 +16,7 @@ RiptideLab.cardService = (function(){
 
   function translateToRiptideLab(cardObject) {
     const riptideCard = {
+      uri: cardObject?.scryfall_uri,
       imageURI: cardObject?.image_uris?.normal
     };
 

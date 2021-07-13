@@ -1,10 +1,12 @@
 RiptideLab.Card = function(cardName) {
   return {getViewer};
 
-  async function getViewer() {
+  async function getViewer({isTouch} = {}) {
     const imageURI = await getImageURI();
     const viewer = createViewer();
     viewer.appendChild(createCardImg(imageURI));
+    if (isTouch)
+      viewer.appendChild(await createDetailsButton());
     return viewer;
   }
 
@@ -28,5 +30,17 @@ RiptideLab.Card = function(cardName) {
     img.style.width = '200pt';
     img.src = imageURI;
     return img;
+  }
+
+  async function createDetailsButton() {
+    const details = await getDetails();
+    const anchor = document.createElement('a');
+    anchor.href = details.uri;
+    anchor.target = '_blank';
+    anchor.text = 'More details';
+    const button = document.createElement('div');
+    button.style.marginTop = '5pt';
+    button.appendChild(anchor);
+    return button;
   }
 };
