@@ -14,31 +14,33 @@ RiptideLab.Tooltip = (function(){
       update(options);
     tooltipElement.style.display = '';
     document.body.appendChild(tooltipElement);
+    updatePosition(options);
   }
 
   function update(options) {
     updateProps(options);
     updateContent(options);
-    updatePosition(options);
   }
 
   function updateProps({isTouch}) {
     props.isTouch = Boolean(isTouch); // We want to convert undefined to false
   }
 
-  function updateContent({card}) {
+  function updateContent({card, event}) {
     if (card)
-      showCard(card);
+      showCard(card, event);
   }
 
-  async function showCard(card) {
+  async function showCard(card, event) {
     if (RiptideLab.Card.areSame(card, currentCard))
       return;
     currentCard = card;
     replaceContent(tooltipElement, createLoadingMessage());
     const viewer = await card.getViewer({isTouch:props.isTouch});
-    if (RiptideLab.Card.areSame(card, currentCard))
+    if (RiptideLab.Card.areSame(card, currentCard)) {
       replaceContent(tooltipElement, viewer);
+      updatePosition({event});
+    }
   }
 
   function updatePosition({event}) {
