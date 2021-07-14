@@ -5,6 +5,7 @@ RiptideLab.Tooltip = (function(){
   const props = {
     isTouch:false
   };
+  let currentCard = null;
 
   return {show, hide, update, props};
 
@@ -33,9 +34,15 @@ RiptideLab.Tooltip = (function(){
   }
 
   async function showCard(card) {
+    if (RiptideLab.Card.areSame(card, currentCard))
+      return;
+    currentCard = card;
     tooltipElement.innerHTML = '';
     const viewer = await card.getViewer({isTouch:props.isTouch});
-    tooltipElement.appendChild(viewer);
+    if (RiptideLab.Card.areSame(card, currentCard)) {
+      tooltipElement.innerHTML = '';
+      tooltipElement.appendChild(viewer);
+    }
   }
 
   function updatePosition({top, left, event}) {
@@ -184,7 +191,7 @@ RiptideLab.Tooltip = (function(){
 
   document.addEventListener('mousemove', function(event) {
     if (isCardTag(event.target))
-      RiptideLab.Tooltip.update({event});
+      showTooltip(event);
   });
 
 
