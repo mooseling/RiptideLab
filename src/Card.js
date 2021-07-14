@@ -16,7 +16,7 @@ RiptideLab.Card = function(cardName) {
   }
 
   async function getDetails() {
-    return await RiptideLab.cardService.getCard(cardName);
+    return await RiptideLab.CardService.getCard(cardName);
   }
 
   function createViewer() {

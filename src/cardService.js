@@ -1,4 +1,4 @@
-RiptideLab.cardService = (function(){
+RiptideLab.CardService = (function(){
   const baseUrl = 'https://api.scryfall.com';
   const cardCache = {};
 
