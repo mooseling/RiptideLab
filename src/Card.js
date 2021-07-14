@@ -1,5 +1,5 @@
 RiptideLab.Card = function(cardName) {
-  return {getViewer};
+  return {getViewer, getCardName};
 
   async function getViewer({isTouch} = {}) {
     const imageURI = await getImageURI();
@@ -43,4 +43,12 @@ RiptideLab.Card = function(cardName) {
     button.appendChild(anchor);
     return button;
   }
+
+  function getCardName() {
+    return cardName;
+  }
+};
+
+RiptideLab.Card.areSame = function(card1, card2) {
+  return card1 && card2 && card1.getCardName() === card2.getCardName();
 };
