@@ -3,8 +3,9 @@ const concat = require('concat');
 concat(
   [
     'src/RiptideLab.js',
-    'src/cardService.js',
-    'src/CardTooltip.js'
+    'src/Card.js',
+    'src/CardService.js',
+    'src/Tooltip.js'
   ],
   'build/RiptideLab.js'
 );
