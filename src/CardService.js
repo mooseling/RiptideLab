@@ -59,15 +59,27 @@ RiptideLab.CardService = (function(){
   // ====================================================
 
   function initCardCache() {
-    const cache = {};
-    return {add, get};
-
-    function add(cardName, card) {
-      cache[cardName] = card;
-    }
-
-    function get(cardName) {
-      return cache[cardName];
+    if (typeof localStorage !== 'undefined') {
+      return {
+        add(cardName, card) {
+          localStorage.setItem(cardName, JSON.stringify(card));
+        },
+        get(cardName) {
+          const cardJSON = localStorage.getItem(cardName);
+          if (cardJSON)
+            return JSON.parse(cardJSON);
+        }
+      };
+    } else {
+      const cache = {};
+      return {
+        add(cardName, card) {
+          cache[cardName] = card;
+        },
+        get(cardName) {
+          return cache[cardName];
+        }
+      };
     }
   }
 }());
