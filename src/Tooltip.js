@@ -37,12 +37,10 @@ RiptideLab.Tooltip = (function(){
     if (RiptideLab.Card.areSame(card, currentCard))
       return;
     currentCard = card;
-    tooltipElement.innerHTML = '';
+    replaceContent(tooltipElement, createLoadingMessage());
     const viewer = await card.getViewer({isTouch:props.isTouch});
-    if (RiptideLab.Card.areSame(card, currentCard)) {
-      tooltipElement.innerHTML = '';
-      tooltipElement.appendChild(viewer);
-    }
+    if (RiptideLab.Card.areSame(card, currentCard))
+      replaceContent(tooltipElement, viewer);
   }
 
   function updatePosition({top, left, event}) {
@@ -155,6 +153,18 @@ RiptideLab.Tooltip = (function(){
     } else {
       return size;
     }
+  }
+
+  function replaceContent(element, newContent) {
+    element.innerHTML = '';
+    element.appendChild(newContent);
+  }
+
+  function createLoadingMessage() {
+    const message = document.createElement('div');
+    message.innerHTML = 'Loading...';
+    message.style = 'display:inline-block;background-color:#f7f7f7;padding:8pt;border-color:#ccc';
+    return message;
   }
 })();
 
