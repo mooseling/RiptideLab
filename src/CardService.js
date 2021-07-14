@@ -1,13 +1,13 @@
 RiptideLab.CardService = (function(){
   const baseUrl = 'https://api.scryfall.com';
-  const cardCache = {};
+  const cardCache = initCardCache();
 
   return {getCard};
 
 
   async function getCard(cardName) {
-    if (cardCache[cardName])
-      return translateToRiptideLab(cardCache[cardName]);
+    if (cardCache.get(cardName))
+      return translateToRiptideLab(cardCache.get(cardName));
 
     const externalCard = await getCardFromExternalService(cardName);
     return translateToRiptideLab(externalCard);
@@ -30,7 +30,7 @@ RiptideLab.CardService = (function(){
     let card = await response.json();
     if (!isValid(card))
       card = getNoCard(cardName);
-    cardCache[cardName] = card;
+    cardCache.add(cardName, card);
     return card;
   }
 
@@ -50,5 +50,24 @@ RiptideLab.CardService = (function(){
         normal:'/card-back.jpg'
       }
     };
+  }
+
+
+
+  // ====================================================
+  //                     Card Cache
+  // ====================================================
+
+  function initCardCache() {
+    const cache = {};
+    return {add, get};
+
+    function add(cardName, card) {
+      cache[cardName] = card;
+    }
+
+    function get(cardName) {
+      return cache[cardName];
+    }
   }
 }());
