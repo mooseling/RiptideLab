@@ -21,7 +21,7 @@ RiptideLab.Card = function(cardName) {
 
   function createViewer() {
     const viewer = document.createElement('div');
-    viewer.style = 'display:inline-block;background-color:#f7f7f7;padding:8pt;border-color:#ccc';
+    viewer.style = RiptideLab.tooltipContentStyle;
     return viewer;
   }
 

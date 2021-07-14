@@ -163,7 +163,7 @@ RiptideLab.Tooltip = (function(){
   function createLoadingMessage() {
     const message = document.createElement('div');
     message.innerHTML = 'Loading...';
-    message.style = 'display:inline-block;background-color:#f7f7f7;padding:8pt;border-color:#ccc';
+    message.style = RiptideLab.tooltipContentStyle;
     return message;
   }
 })();
