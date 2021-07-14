@@ -293,7 +293,9 @@ class Base
         }
         else
         {
-            $txt = $tag['children'][0];
+            @$txt = $tag['children'][0];
+            if (!is_string($txt))
+              return '';
 
             $cards = preg_split("/[\r\n]/", $txt);
 
