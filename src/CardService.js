@@ -60,11 +60,28 @@ RiptideLab.CardService = (function(){
 
   function initCardCache() {
     if (typeof localStorage !== 'undefined') {
+      const cache = {
+        isTimedOut(cardName) {
+          const timestamp = localStorage.getItem(`${cardName}-timestamp`);
+          return Date.now() - timestamp > 3600000;
+        },
+        remove(cardName) {
+          localStorage.removeItem(cardName);
+          localStorage.removeItem(`${cardName}-timestamp`);
+        }
+      };
+
       return {
         add(cardName, card) {
           localStorage.setItem(cardName, JSON.stringify(card));
+          localStorage.setItem(`${cardName}-timestamp`, Date.now());
         },
         get(cardName) {
+          if (cache.isTimedOut(cardName)) {
+            cache.remove(cardName);
+            return;
+          }
+
           const cardJSON = localStorage.getItem(cardName);
           if (cardJSON)
             return JSON.parse(cardJSON);
