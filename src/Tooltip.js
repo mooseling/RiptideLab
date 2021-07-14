@@ -7,7 +7,7 @@ RiptideLab.Tooltip = (function(){
   };
   let currentCard = null;
 
-  return {show, hide, update, props};
+  return {show, hide, props};
 
   function show(options) {
     if (options)
@@ -26,10 +26,8 @@ RiptideLab.Tooltip = (function(){
     props.isTouch = Boolean(isTouch); // We want to convert undefined to false
   }
 
-  function updateContent({html, card}) {
-    if (html !== undefined)
-      tooltipElement.innerHTML = html;
-    else if (card)
+  function updateContent({card}) {
+    if (card)
       showCard(card);
   }
 
@@ -43,23 +41,17 @@ RiptideLab.Tooltip = (function(){
       replaceContent(tooltipElement, viewer);
   }
 
-  function updatePosition({top, left, event}) {
-    if (event) { // a mouse-event to put the tooltip next to
+  function updatePosition({event}) {
+    if (event) // a mouse-event to put the tooltip next to
       setPositionFromEvent(event);
-    } else {
-      if (top !== undefined)
-        tooltipElement.style.top = top;
-      if (left !== undefined)
-        tooltipElement.style.left = left;
-    }
   }
 
   function setPositionFromEvent(event) {
     const eventTop = getTop(event);
     const eventLeft = getLeft(event);
     const newCoords = fitToScreen(eventLeft, eventTop);
-    tooltipElement.style.top = newCoords[1]; // + 8;
-    tooltipElement.style.left = newCoords[0]; // + 8;
+    tooltipElement.style.top = newCoords[1];
+    tooltipElement.style.left = newCoords[0];
   }
 
   function getLeft(event) {
