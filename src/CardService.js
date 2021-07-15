@@ -80,7 +80,7 @@ RiptideLab.CardService = (function(){
       const memoryCache = {};
       function isTimedOut(cardName) {
         const timestamp = localStorage.getItem(`RiptideLab--${cardName}-timestamp`);
-        return Date.now() - timestamp > 3600000;
+        return Date.now() - timestamp > 2419200000; // 4 weeks
       }
       function remove(cardName) {
         localStorage.removeItem(`RiptideLab--${cardName}`);
