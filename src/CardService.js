@@ -63,33 +63,7 @@ RiptideLab.CardService = (function(){
 
   function initCardCache() {
     if (typeof localStorage !== 'undefined') {
-      const cache = {
-        isTimedOut(cardName) {
-          const timestamp = localStorage.getItem(`RiptideLab--${cardName}-timestamp`);
-          return Date.now() - timestamp > 3600000;
-        },
-        remove(cardName) {
-          localStorage.removeItem(`RiptideLab--${cardName}`);
-          localStorage.removeItem(`RiptideLab--${cardName}-timestamp`);
-        }
-      };
-
-      return {
-        add(cardName, card) {
-          localStorage.setItem(`RiptideLab--${cardName}`, JSON.stringify(card));
-          localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
-        },
-        get(cardName) {
-          if (cache.isTimedOut(cardName)) {
-            cache.remove(cardName);
-            return;
-          }
-
-          const cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
-          if (cardJSON)
-            return JSON.parse(cardJSON);
-        }
-      };
+      return createLocalStorageCache();
     } else {
       const cache = {};
       return {
@@ -98,6 +72,34 @@ RiptideLab.CardService = (function(){
         },
         get(cardName) {
           return cache[cardName];
+        }
+      };
+    }
+
+    function createLocalStorageCache() {
+      function isTimedOut(cardName) {
+        const timestamp = localStorage.getItem(`RiptideLab--${cardName}-timestamp`);
+        return Date.now() - timestamp > 3600000;
+      }
+      function remove(cardName) {
+        localStorage.removeItem(`RiptideLab--${cardName}`);
+        localStorage.removeItem(`RiptideLab--${cardName}-timestamp`);
+      }
+
+      return {
+        add(cardName, card) {
+          localStorage.setItem(`RiptideLab--${cardName}`, JSON.stringify(card));
+          localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
+        },
+        get(cardName) {
+          if (isTimedOut(cardName)) {
+            remove(cardName);
+            return;
+          }
+
+          const cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
+          if (cardJSON)
+            return JSON.parse(cardJSON);
         }
       };
     }
