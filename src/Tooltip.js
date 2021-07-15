@@ -52,8 +52,8 @@ RiptideLab.Tooltip = (function(){
     const eventTop = getTop(event);
     const eventLeft = getLeft(event);
     const newCoords = fitToScreen(eventLeft, eventTop);
-    tooltipElement.style.top = newCoords[1];
-    tooltipElement.style.left = newCoords[0];
+    tooltipElement.style.top = newCoords[1] + 'px';
+    tooltipElement.style.left = newCoords[0] + 'px';
   }
 
   function getLeft(event) {
