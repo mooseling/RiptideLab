@@ -78,14 +78,7 @@ RiptideLab.CardService = (function(){
 
     function createLocalStorageCache() {
       const memoryCache = {};
-      function isTimedOut(cardName) {
-        const timestamp = localStorage.getItem(`RiptideLab--${cardName}-timestamp`);
-        return Date.now() - timestamp > 2419200000; // 4 weeks
-      }
-      function remove(cardName) {
-        localStorage.removeItem(`RiptideLab--${cardName}`);
-        localStorage.removeItem(`RiptideLab--${cardName}-timestamp`);
-      }
+      cleanCache();
 
       return {
         add(cardName, card) {
@@ -100,16 +93,27 @@ RiptideLab.CardService = (function(){
           if (memoryCache[cardName])
             return memoryCache[cardName];
 
-          if (isTimedOut(cardName)) {
-            remove(cardName);
-            return;
-          }
-
           const cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
           if (cardJSON)
             return JSON.parse(cardJSON);
         }
       };
+
+      function cleanCache() {
+        for (const key in localStorage) {
+          if (localStorage.hasOwnProperty(key) && isCacheTimeStamp(key)) {
+            const timestamp = localStorage.getItem(key);
+            if (Date.now() - timestamp > 2419200000) { // 4 weeks
+              localStorage.removeItem(key);
+              localStorage.removeItem(key.slice(0, -10));
+            }
+          }
+        }
+      }
+
+      function isCacheTimeStamp(string) {
+        return string.substr(0,12) === 'RiptideLab--' && string.substr(-10) === '-timestamp';
+      }
     }
   }
 }());
