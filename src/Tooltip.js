@@ -179,8 +179,7 @@ RiptideLab.Tooltip = (function(){
   }, {passive:false});
 
   document.addEventListener('click', function() {
-    if (RiptideLab.Tooltip.props.isTouch)
-      hideTooltip();
+    hideTooltip();
   });
 
   document.addEventListener('mouseover', function(event) {
