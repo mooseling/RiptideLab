@@ -19,6 +19,8 @@ RiptideLab.CardService = (function(){
       uri: cardObject?.scryfall_uri,
       imageURI: cardObject?.image_uris?.normal
     };
+    if (cardObject.isNoCard)
+      riptideCard.isNoCard = true;
 
     return riptideCard;
   }
@@ -45,6 +47,7 @@ RiptideLab.CardService = (function(){
 
   function getNoCard(cardName) {
     return {
+      isNoCard:true,
       scryfall_uri:'https://scryfall.com/search?q=' + encodeURIComponent(cardName),
       image_uris:{
         normal:'/card-back.jpg'
