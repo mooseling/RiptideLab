@@ -77,6 +77,7 @@ RiptideLab.CardService = (function(){
     }
 
     function createLocalStorageCache() {
+      const memoryCache = {};
       function isTimedOut(cardName) {
         const timestamp = localStorage.getItem(`RiptideLab--${cardName}-timestamp`);
         return Date.now() - timestamp > 3600000;
@@ -88,10 +89,17 @@ RiptideLab.CardService = (function(){
 
       return {
         add(cardName, card) {
-          localStorage.setItem(`RiptideLab--${cardName}`, JSON.stringify(card));
-          localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
+          if (card.isNoCard) {
+            memoryCache[cardName] = card;
+          } else {
+            localStorage.setItem(`RiptideLab--${cardName}`, JSON.stringify(card));
+            localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
+          }
         },
         get(cardName) {
+          if (memoryCache[cardName])
+            return memoryCache[cardName];
+
           if (isTimedOut(cardName)) {
             remove(cardName);
             return;
