@@ -7,8 +7,9 @@ RiptideLab.CardService = (function(){
 
   async function getCard(cardName) {
     cardName = cardName.toLowerCase();
-    if (cardCache.get(cardName))
-      return translateToRiptideLab(cardCache.get(cardName));
+    const cachedCard = cardCache.get(cardName);
+    if (cachedCard)
+      return translateToRiptideLab(cachedCard);
 
     const externalCard = await getCardFromExternalService(cardName);
     return translateToRiptideLab(externalCard);
