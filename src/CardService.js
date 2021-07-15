@@ -6,6 +6,7 @@ RiptideLab.CardService = (function(){
 
 
   async function getCard(cardName) {
+    cardName = cardName.toLowerCase();
     if (cardCache.get(cardName))
       return translateToRiptideLab(cardCache.get(cardName));
 
