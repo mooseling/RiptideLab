@@ -282,7 +282,6 @@ class Base
 
     public static function parseTagCard($children, $option, $tag, $options, $parentClass)
     {
-
         if ($tag['option'] != NULL)
         {
             $card = $tag['option'];
@@ -311,41 +310,43 @@ class Base
         }
     }
 
-    public static function parseTagCardTest($children, $option, $tag, $options, $parentClass)
-    {
-        $qtyAndNameRegex = '/([\s0-9-]*)(.*)/';
 
-        if ($tag['option'] != NULL)
-        {
-            $card = $tag['option'];
-            $card = strtolower(trim($card));
-            preg_match($qtyAndNameRegex, $card, $bits);
-            $qty = $bits[1];
-            $cardName = $bits[2];
-            $linkText = $tag['children'][0];
+    public static function parseTagTest($children, $option, $tag, $options, $parentClass) {
+      if ($tag['option'] != NULL)
+      {
+          $card = $tag['option'];
+          $card = strtolower(trim($card));
+          preg_match('/([\s0-9-]*)(.*)/', $card, $bits);
+          return $bits[1].self::getCardTagHtml($bits[2], $tag['children'][0]);
+      }
+      else
+      {
+          @$txt = $tag['children'][0];
+          if (!is_string($txt))
+            return '';
 
-            return "$qty<a data-card-name='$cardName' href='https://scryfall.com/search?q=$cardName'>$linkText<script>setTimeout(() => RiptideLab.addHandlerFromScriptTag(), 0)</script></a>";
-        }
-        else
-        {
-            $txt = $tag['children'][0];
+          $cards = preg_split("/[\r\n]/", $txt);
 
-            $cards = preg_split("/[\r\n]/", $txt);
+          foreach($cards as &$card) {
+              $card = trim($card);
+              $lcCard = strtolower($card);
+              preg_match('/([\s0-9-]*)(.*)/', $lcCard, $bits);
+              preg_match('/([\s0-9-]*)(.*)/', $card, $origBits);
 
-            foreach($cards as &$card) {
-                $card = trim($card);
-                $lcCard = strtolower($card);
-                preg_match($qtyAndNameRegex, $lcCard, $bits);
-                preg_match($qtyAndNameRegex, $card, $origBits);
-                $qty = $bits[1];
-                $cardName = $bits[2];
-                $linkText = $origBits[2];
+              $card = $bits[1].self::getCardTagHtml($bits[2], $origBits[2]);
+          }
 
-                $card = "$qty<a data-card-name='$cardName' href='https://scryfall.com/search?q=$cardName'>$linkText<script>setTimeout(() => RiptideLab.addHandlerFromScriptTag(), 0)</script></a>";
-            }
+          return implode("<br/>", $cards);
+      }
+    }
 
-            return implode("<br/>", $cards);
-        }
+
+
+    private static function getCardTagHtml($cardName, $displayText) {
+      $safeCardName = htmlspecialchars($cardName);
+      $safeDisplayText = htmlspecialchars($displayText);
+      $queryString = htmlspecialchars(http_build_query(['q' => $cardName], null, '&', PHP_QUERY_RFC3986));
+      return "<a class=RiptideLab--card-hover href='https://scryfall.com/search?$queryString' target=_blank data-card-name='$safeCardName'>$safeDisplayText</a>";
     }
 }
 
