@@ -1,6 +1,6 @@
 RiptideLab.Tooltip = (function(){
   const tooltipElement = document.createElement('div');
-  tooltipElement.style.position = 'fixed';
+  tooltipElement.style.position = 'absolute';
   tooltipElement.style.display = 'none';
   const props = {
     isTouch:false
