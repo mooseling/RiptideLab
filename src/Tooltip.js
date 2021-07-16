@@ -204,7 +204,7 @@ RiptideLab.Tooltip = (function(){
   }
 
   function isCardTag(element) {
-    if (element?.classList.contains('card-hover'))
+    if (element?.classList.contains('RiptideLab--card-hover'))
       return true;
     return false;
   }
