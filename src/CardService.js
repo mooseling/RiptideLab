@@ -29,7 +29,7 @@ RiptideLab.CardService = (function(){
 
   // When a card is not found, Scryfall returns a json response and a 404 status
   async function getCardFromExternalService(cardName) {
-    const endpoint = 'cards/named?exact=' + encodeURIComponent(cardName);
+    const endpoint = 'cards/named?fuzzy=' + encodeURIComponent(cardName);
     let card;
 
     try {
