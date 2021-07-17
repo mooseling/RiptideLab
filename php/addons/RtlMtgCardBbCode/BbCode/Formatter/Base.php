@@ -282,32 +282,32 @@ class Base
 
     public static function parseTagCard($children, $option, $tag, $options, $parentClass)
     {
-        if ($tag['option'] != NULL)
-        {
-            $card = $tag['option'];
-            $card = strtolower(trim($card));
-            preg_match('/([\s0-9-]*)(.*)/', $card, $bits);
+      if ($tag['option'] != NULL)
+      {
+          $card = $tag['option'];
+          $card = strtolower(trim($card));
+          preg_match('/([\s0-9-]*)(.*)/', $card, $bits);
+          return $bits[1].self::getCardTagHtml($bits[2], $tag['children'][0]);
+      }
+      else
+      {
+          @$txt = $tag['children'][0];
+          if (!is_string($txt))
+            return '';
 
-            return $bits[1].'<a href="http://deckbox.org/mtg/'.$bits[2].'">'.$tag['children'][0].'</a>';
-        }
-        else
-        {
-            @$txt = $tag['children'][0];
-            if (!is_string($txt))
-              return '';
+          $cards = preg_split("/[\r\n]/", $txt);
 
-            $cards = preg_split("/[\r\n]/", $txt);
+          foreach($cards as &$card) {
+              $card = trim($card);
+              $lcCard = strtolower($card);
+              preg_match('/([\s0-9-]*)(.*)/', $lcCard, $bits);
+              preg_match('/([\s0-9-]*)(.*)/', $card, $origBits);
 
-            foreach($cards as &$card) {
-                $card = trim($card);
-                $lcCard = strtolower($card);
-                preg_match('/([\s0-9-]*)(.*)/', $lcCard, $bits);
-                preg_match('/([\s0-9-]*)(.*)/', $card, $origBits);
-                $card = $bits[1].'<a href="http://deckbox.org/mtg/'.$bits[2].'">'.$origBits[2].'</a>';
-            }
+              $card = $bits[1].self::getCardTagHtml($bits[2], $origBits[2]);
+          }
 
-            return implode("<br/>", $cards);
-        }
+          return implode("<br/>", $cards);
+      }
     }
 
 
