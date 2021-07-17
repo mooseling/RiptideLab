@@ -346,7 +346,7 @@ class Base
       $safeCardName = htmlspecialchars($cardName);
       $safeDisplayText = htmlspecialchars($displayText);
       $queryString = htmlspecialchars(http_build_query(['q' => $cardName], null, '&', PHP_QUERY_RFC3986));
-      return "<a class=RiptideLab--card-hover href='https://scryfall.com/search?$queryString' target=_blank data-card-name='$safeCardName'>$safeDisplayText</a>";
+      return "<a class=RiptideLab--card-hover href=\"https://scryfall.com/search?$queryString\" target=_blank data-card-name=\"$safeCardName\">$safeDisplayText</a>";
     }
 }
 
