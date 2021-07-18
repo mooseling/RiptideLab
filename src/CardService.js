@@ -37,8 +37,14 @@ RiptideLab.CardService = (function(){
       card = await response.json(); // Had issues with blank responses on Edge
     } catch (error) {}
 
-    if (!isValid(card))
+    if (!isValid(card)){
       card = getNoCard(cardName);
+    }
+    if(card?.name?.toLowerCase() && cardName !== card?.name?.toLowerCase()){
+      //If it is fuzzy matched, then we want to cache the actual card
+      cardCache.addFuzzy(cardName, card.name.toLowerCase(), card)
+      return card;
+    }
     cardCache.add(cardName, card);
     return card;
   }
@@ -96,11 +102,29 @@ RiptideLab.CardService = (function(){
             localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
           }
         },
+        addFuzzy(cardName, exactName, card){
+          //Card should always be a valid card because of how this is called, but
+          //for safetly and extensibility...
+          if (card.isNoCard) {
+            memoryCache[cardName] = card;
+          } else {
+            const n = Date.now();
+            localStorage.setItem(`RiptideLab--${exactName}`, JSON.stringify(card));
+            localStorage.setItem(`RiptideLab--${exactName}-timestamp`, n);
+            //Fuzzy name can reference the exactName
+            localStorage.setItem(`RiptideLab--${cardName}`, `RiptideLab--${exactName}`);
+            localStorage.setItem(`RiptideLab--${cardName}-timestamp`, n);
+          }
+        },
         get(cardName) {
           if (memoryCache[cardName])
             return memoryCache[cardName];
 
-          const cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
+          var cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
+          if (cardJSON?.startsWith('RiptideLab--')){
+            //If this is a fuzzy reference, follow it
+            cardJSON = localStorage.getItem(cardJSON);
+          }
           if (cardJSON)
             return JSON.parse(cardJSON);
         }
