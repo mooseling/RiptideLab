@@ -144,7 +144,7 @@ RiptideLab.CardService = (function(){
       }
 
       function isCacheTimeStamp(string) {
-        return string.substr(0,12) === 'RiptideLab--' && string.substr(-10) === '-timestamp';
+        return string.startsWith('RiptideLab--') && string.endsWith('-timestamp');
       }
 
       function getFromFuzzyReference(fuzzyReference) {
