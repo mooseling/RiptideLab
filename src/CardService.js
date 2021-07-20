@@ -55,11 +55,13 @@ RiptideLab.CardService = (function(){
   }
 
   function isValid(card) {
-    return Boolean(card?.scryfall_uri && card.image_uris?.normal);
+    return Boolean(card?.name && card.scryfall_uri && card.image_uris?.normal);
   }
 
+  // A no-card must pass isValid()
   function getNoCard(cardName) {
     return {
+      name:cardName,
       isNoCard:true,
       scryfall_uri:'https://scryfall.com/search?q=' + encodeURIComponent(cardName),
       image_uris:{
