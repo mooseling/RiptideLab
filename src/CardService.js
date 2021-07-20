@@ -29,7 +29,7 @@ RiptideLab.CardService = (function(){
 
   // When a card is not found, Scryfall returns a json response and a 404 status
   async function getCardFromExternalService(cardName) {
-    const endpoint = 'cards/named?exact=' + encodeURIComponent(cardName);
+    const endpoint = 'cards/named?fuzzy=' + encodeURIComponent(cardName);
     let card;
 
     try {
@@ -39,7 +39,14 @@ RiptideLab.CardService = (function(){
 
     if (!isValid(card))
       card = getNoCard(cardName);
-    cardCache.add(cardName, card);
+
+    // If it is fuzzy matched, then we want to cache the actual card
+    const returnedCardName = card.name.toLowerCase();
+    if (cardName !== returnedCardName)
+      cardCache.addFuzzy(cardName, returnedCardName, card);
+    else
+      cardCache.add(cardName, card);
+
     return card;
   }
 
@@ -49,11 +56,13 @@ RiptideLab.CardService = (function(){
   }
 
   function isValid(card) {
-    return Boolean(card?.scryfall_uri && card.image_uris?.normal);
+    return Boolean(card?.name && card.scryfall_uri && card.image_uris?.normal);
   }
 
+  // A no-card must pass isValid()
   function getNoCard(cardName) {
     return {
+      name:cardName,
       isNoCard:true,
       scryfall_uri:'https://scryfall.com/search?q=' + encodeURIComponent(cardName),
       image_uris:{
@@ -96,13 +105,29 @@ RiptideLab.CardService = (function(){
             localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
           }
         },
+        addFuzzy(cardName, exactName, card) {
+          // Card should always be a valid card because of how this is called, but
+          // for safetly and extensibility...
+          if (card.isNoCard) {
+            memoryCache[cardName] = card;
+          } else {
+            const timeNow = Date.now();
+            localStorage.setItem(`RiptideLab--${exactName}`, JSON.stringify(card));
+            localStorage.setItem(`RiptideLab--${exactName}-timestamp`, timeNow);
+            // Fuzzy name can reference the exactName
+            localStorage.setItem(`RiptideLab--${cardName}`, `fuzzyReference--${exactName}`);
+            localStorage.setItem(`RiptideLab--${cardName}-timestamp`, timeNow);
+          }
+        },
         get(cardName) {
           if (memoryCache[cardName])
             return memoryCache[cardName];
-
-          const cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
-          if (cardJSON)
+          let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
+          if (cardJSON) {
+            if (cardJSON.startsWith('fuzzyReference--')) // If this is a fuzzy reference, follow it
+              return getFromFuzzyReference(cardJSON);
             return JSON.parse(cardJSON);
+          }
         }
       };
 
@@ -120,6 +145,13 @@ RiptideLab.CardService = (function(){
 
       function isCacheTimeStamp(string) {
         return string.substr(0,12) === 'RiptideLab--' && string.substr(-10) === '-timestamp';
+      }
+
+      function getFromFuzzyReference(fuzzyReference) {
+        const cardName = fuzzyReference.slice(16);
+        let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
+        if (cardJSON)
+          return JSON.parse(cardJSON);
       }
     }
   }
