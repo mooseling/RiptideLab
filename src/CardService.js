@@ -115,7 +115,7 @@ RiptideLab.CardService = (function(){
             localStorage.setItem(`RiptideLab--${exactName}`, JSON.stringify(card));
             localStorage.setItem(`RiptideLab--${exactName}-timestamp`, timeNow);
             // Fuzzy name can reference the exactName
-            localStorage.setItem(`RiptideLab--${cardName}`, `RiptideLab--${exactName}`);
+            localStorage.setItem(`RiptideLab--${cardName}`, `fuzzyReference--${exactName}`);
             localStorage.setItem(`RiptideLab--${cardName}-timestamp`, timeNow);
           }
         },
@@ -123,10 +123,11 @@ RiptideLab.CardService = (function(){
           if (memoryCache[cardName])
             return memoryCache[cardName];
           let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
-          if (cardJSON?.startsWith('RiptideLab--')) // If this is a fuzzy reference, follow it
-            cardJSON = localStorage.getItem(cardJSON);
-          if (cardJSON)
+          if (cardJSON) {
+            if (cardJSON.startsWith('fuzzyReference--')) // If this is a fuzzy reference, follow it
+              return getFromFuzzyReference(cardJSON);
             return JSON.parse(cardJSON);
+          }
         }
       };
 
@@ -144,6 +145,13 @@ RiptideLab.CardService = (function(){
 
       function isCacheTimeStamp(string) {
         return string.substr(0,12) === 'RiptideLab--' && string.substr(-10) === '-timestamp';
+      }
+
+      function getFromFuzzyReference(fuzzyReference) {
+        const cardName = fuzzyReference.slice(16);
+        let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
+        if (cardJSON)
+          return JSON.parse(cardJSON);
       }
     }
   }
