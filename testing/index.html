@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Card Tags</title>
+  <meta name="viewport" content="initial-scale=1">
+  <script src=../src/RiptideLab.js></script>
+  <script src=../src/Card.js?logging></script>
+  <script src=../src/CardService.js?update></script>
+  <script src=../src/Tooltip.js?absolute></script>
+</head>
+<body>
+
+<!-- Cards positioned near the edge of the screen -->
+<!-- Used for testing tooltip positioning -->
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=Brushwagg" target=_blank data-card-name="Brushwagg" style="position:absolute;right:100px;">Brushwagg</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=anfkajsnk" target=_blank data-card-name="anfkajsnk" style="position:absolute;right:100px;">anfkajsnk</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=Brushwagg" target=_blank data-card-name="Brushwagg" style="position:absolute;right:100px;bottom:40pt">Brushwagg</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=anfkajsnk" target=_blank data-card-name="anfkajsnk" style="position:absolute;right:100px;bottom:20pt;">anfkajsnk</a>
+
+<!-- Testing card names -->
+<h3>Known cards</h3>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=brushwagg" target=_blank data-card-name=brushwagg>Brushwagg</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=Zur the enchanter" target=_blank data-card-name="Zur the enchanter">Zur the enchanter</a>
+
+<h3>Spelled almost correctly - fuzzy search should find</h3>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=steamflooger boss" target=_blank data-card-name="steamflooger boss">steamflooger boss</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=Trostani, se" target=_blank data-card-name="Trostani, se">Trostani, se</a>
+
+<h3>Spelled too wrong - should not turn up</h3>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=steamfluglehaben boss" target=_blank data-card-name="steamfluglehaben boss">steamfluglehaben boss</a>
+
+<h3>Cards with horrible frames - should show reasonable versions</h3>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=mind twist" target=_blank data-card-name="mind twist">mind twist</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=opposition" target=_blank data-card-name="opposition">opposition</a>
+
+<h3>Cards with characters that broke once - should work fine now</h3>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=+2 Mace" target=_blank data-card-name="+2 Mace">+2 Mace</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=Guan Yu's 1,000-Li March" target=_blank data-card-name="Guan Yu's 1,000-Li March">Guan Yu's 1,000-Li March</a>
+
+<!-- Testing tooltip positioning with scrolling -->
+<h3>Scroll down...<h3>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<h3>Scrolled</h3>
+<h3>Known cards</h3>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=brushwagg" target=_blank data-card-name=brushwagg>Brushwagg</a>
+<br>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=Zur the enchanter" target=_blank data-card-name="Zur the enchanter">Zur the enchanter</a>
+
+<h3>Spelled too wrong</h3>
+<a class=RiptideLab--card-hover href="https://scryfall.com/search?q=steamfluglehaben boss" target=_blank data-card-name="steamfluglehaben boss">steamfluglehaben boss</a>
+
+<!-- We want to be able to scroll far enough that the scroll test cases are not by the bottom of the viewport -->
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+</html>
