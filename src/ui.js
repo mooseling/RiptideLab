@@ -61,5 +61,27 @@ RiptideLab.ui = {
     } else {
       return size;
     }
+  },
+  addTapListener(element, handler) {
+    let startLeft, startTop;
+
+    element.addEventListener('touchstart', function (event) {
+      setCoordinates(event);
+    });
+    element.addEventListener('touchend', function (event) {
+      if (wasNoMovement(event))
+        handler.call(this, event);
+    });
+
+    function setCoordinates(event) {
+      startLeft = RiptideLab.ui.getLeft(event);
+      startTop = RiptideLab.ui.getTop(event);
+    }
+
+    function wasNoMovement(event) {
+      const newLeft = RiptideLab.ui.getLeft(event);
+      const newTop = RiptideLab.ui.getTop(event);
+      return Math.abs(newLeft - startLeft) < 2 && Math.abs(newTop - startTop) < 2;
+    }
   }
 };
