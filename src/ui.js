@@ -3,8 +3,11 @@ RiptideLab.ui = {
     if (event.pageX !== undefined)
       return event.pageX;
 
-    if (event.touches?.[0].pageX !== undefined)
-      return event.touches?.[0].pageX;
+    if (event.touches?.[0]?.pageX !== undefined)
+      return event.touches[0].pageX;
+
+    if (event.changedTouches?.[0]?.pageX !== undefined)
+      return event.changedTouches[0].pageX;
 
     const docElement = document.documentElement;
     const scrollLeft = document.body?.scrollLeft || 0;
@@ -16,8 +19,11 @@ RiptideLab.ui = {
     if (event.pageY !== undefined)
       return event.pageY;
 
-    if (event.touches?.[0].pageY !== undefined)
-      return event.touches?.[0].pageY;
+    if (event.touches?.[0]?.pageY !== undefined)
+      return event.touches[0].pageY;
+
+    if (event.changedTouches?.[0]?.pageY !== undefined)
+      return event.changedTouches[0].pageY;
 
     const docElement = document.documentElement;
     const scrollTop = document.body?.scrollTop || 0;
