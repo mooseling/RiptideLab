@@ -81,7 +81,7 @@ RiptideLab.ui = {
     function wasNoMovement(event) {
       const newLeft = RiptideLab.ui.getLeft(event);
       const newTop = RiptideLab.ui.getTop(event);
-      return Math.abs(newLeft - startLeft) < 2 && Math.abs(newTop - startTop) < 2;
+      return newLeft === startLeft && newTop === startTop;
     }
   }
 };
