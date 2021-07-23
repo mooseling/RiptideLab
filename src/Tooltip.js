@@ -36,30 +36,31 @@ RiptideLab.Tooltip = (function(){
     if (RiptideLab.Card.areSame(card, currentCard))
       return;
     currentCard = card;
-    replaceContent(tooltipElement, createLoadingMessage());
+    replaceTooltipContent(createLoadingMessage());
     const viewer = await card.getViewer({isTouch:props.isTouch});
     if (RiptideLab.Card.areSame(card, currentCard)) {
-      replaceContent(tooltipElement, viewer);
+      replaceTooltipContent(viewer);
       updatePosition({event});
     }
   }
 
   function updatePosition({event}) {
-    if (event) // a mouse-event to put the tooltip next to
-      setPositionFromEvent(event);
-  }
-
-  function setPositionFromEvent(event) {
-    const eventTop = RiptideLab.ui.getTop(event);
-    const eventLeft = RiptideLab.ui.getLeft(event);
-    const newCoords = fitToScreen(eventLeft, eventTop);
-    tooltipElement.style.top = newCoords[1] + 'px';
-    tooltipElement.style.left = newCoords[0] + 'px';
+    if (event) { // a mouse-event to put the tooltip next to
+      const eventTop = RiptideLab.ui.getTop(event);
+      const eventLeft = RiptideLab.ui.getLeft(event);
+      const newCoords = fitToScreen(eventLeft, eventTop);
+      tooltipElement.style.top = newCoords[1] + 'px';
+      tooltipElement.style.left = newCoords[0] + 'px';
+    }
   }
 
   function hide() {
     tooltipElement.style.display = 'none';
   }
+
+
+
+
 
   function fitToScreen(posX, posY) {
     const scroll = RiptideLab.ui.scrollOffsets();
@@ -85,9 +86,9 @@ RiptideLab.Tooltip = (function(){
     return [posX, posY];
   }
 
-  function replaceContent(element, newContent) {
-    element.innerHTML = '';
-    element.appendChild(newContent);
+  function replaceTooltipContent(newContent) {
+    tooltipElement.innerHTML = '';
+    tooltipElement.appendChild(newContent);
   }
 
   function createLoadingMessage() {
