@@ -27,8 +27,11 @@ RiptideLab.Card = function(cardName) {
 
   function createCardImg(imageURI) {
     const img = document.createElement('img');
-    img.style.width = '200pt';
-    img.style.minHeight = '278.68pt';
+    // Fix the aspect ratio at 61:85, which magic cards should be
+    // Fixed dimensions mean we can position the tooltip before the image has loaded
+    img.style.width = '192.15pt';
+    img.style.height = '267.75pt';
+    img.style.maxWidth = 'unset'; // I think other RL css is clashing here
     img.src = imageURI;
     return img;
   }
