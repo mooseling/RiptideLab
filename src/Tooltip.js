@@ -1,43 +1,37 @@
 RiptideLab.Tooltip = (function(){
   const tooltipElement = document.createElement('div');
-  tooltipElement.style.position = 'absolute';
-  tooltipElement.style.display = 'none';
-  tooltipElement.style.zIndex = '500';
-  const props = {
-    isTouch:false
-  };
+  tooltipElement.style = 'position:absolute;display:none;z-index:500';
+  let isTouch = false;
   let currentCard = null;
 
-  return {show, hide, props};
+  return {
+    show(options) {
+      if (options)
+        update(options);
+      tooltipElement.style.display = '';
+      document.body.appendChild(tooltipElement);
+      updatePosition(options);
+    },
+    hide() {
+      tooltipElement.style.display = 'none';
+    }
+  };
 
-  function show(options) {
-    if (options)
-      update(options);
-    tooltipElement.style.display = '';
-    document.body.appendChild(tooltipElement);
-    updatePosition(options);
+
+
+  function update({isTouch, event}) {
+    isTouch = Boolean(isTouch); // We want to convert undefined to false
+    showCard(event);
   }
 
-  function update(options) {
-    updateProps(options);
-    updateContent(options);
-  }
-
-  function updateProps({isTouch}) {
-    props.isTouch = Boolean(isTouch); // We want to convert undefined to false
-  }
-
-  function updateContent({card, event}) {
-    if (card)
-      showCard(card, event);
-  }
-
-  async function showCard(card, event) {
-    if (RiptideLab.Card.areSame(card, currentCard))
+  async function showCard(event) {
+    const cardName = event.target?.dataset?.cardName;
+    const card = cardName && RiptideLab.Card(cardName);
+    if (!card || RiptideLab.Card.areSame(card, currentCard))
       return;
     currentCard = card;
     replaceTooltipContent(createLoadingMessage());
-    const viewer = await card.getViewer({isTouch:props.isTouch});
+    const viewer = await card.getViewer({isTouch});
     if (RiptideLab.Card.areSame(card, currentCard)) {
       replaceTooltipContent(viewer);
       updatePosition({event});
@@ -45,45 +39,34 @@ RiptideLab.Tooltip = (function(){
   }
 
   function updatePosition({event}) {
-    if (event) { // a mouse-event to put the tooltip next to
-      const eventTop = RiptideLab.ui.getTop(event);
-      const eventLeft = RiptideLab.ui.getLeft(event);
-      const newCoords = fitToScreen(eventLeft, eventTop);
-      tooltipElement.style.top = newCoords[1] + 'px';
-      tooltipElement.style.left = newCoords[0] + 'px';
-    }
+    if (event) // a mouse-event to put the tooltip next to
+      fitToScreen(event);
   }
 
-  function hide() {
-    tooltipElement.style.display = 'none';
-  }
-
-
-
-
-
-  function fitToScreen(posX, posY) {
-    const scroll = RiptideLab.ui.scrollOffsets();
+  function fitToScreen(event) {
+    let posX = RiptideLab.ui.getLeft(event);
+    let posY = RiptideLab.ui.getTop(event);
+    const [scrollX, scrollY] = RiptideLab.ui.scrollOffsets();
     const viewport = RiptideLab.ui.viewportSize();
     const {offsetWidth, offsetHeight} = tooltipElement;
 
     posX += 8; // Offset from cursor a little
 
-    /* decide if we need to switch sides for the tooltip */
-    /* too big for X */
-    if ((posX + offsetWidth - scroll[0]) >= (viewport[0] - 15))
+    // decide if we need to switch sides for the tooltip
+    if ((posX + offsetWidth - scrollX) >= (viewport[0] - 15))
       posX = posX - offsetWidth - 20;
-    /* too far left */
-    if (posX < scroll[0] + 15)
-      posX = scroll[0] + 15;
-    /* If it's too high, we move it down. */
-    if (posY - scroll[1] < 0)
-      posY += scroll[1] - posY + 5;
-    /* If it's too low, we move it up. */
-    if (posY + offsetHeight - scroll[1] > viewport[1])
-      posY -= posY + offsetHeight + 5 - scroll[1] - viewport[1];
+    if (posX < scrollX + 15) // too far left
+      posX = scrollX + 15;
 
-    return [posX, posY];
+    // If it's too high, we move it down.
+    if (posY - scrollY < 0)
+      posY += scrollY - posY + 5;
+    // If it's too low, we move it up.
+    if (posY + offsetHeight - scrollY > viewport[1])
+      posY -= posY + offsetHeight + 5 - scrollY - viewport[1];
+
+    tooltipElement.style.left = posX + 'px';
+    tooltipElement.style.top = posY + 'px';
   }
 
   function replaceTooltipContent(newContent) {
@@ -148,10 +131,8 @@ RiptideLab.Tooltip = (function(){
 
 
   function showTooltip(event, isTouch) {
-    const element = event.target;
-    const card = RiptideLab.Card(element.dataset.cardName);
-    currentTooltippedElement = element;
-    RiptideLab.Tooltip.show({card, event, isTouch});
+    currentTooltippedElement = event.target;
+    RiptideLab.Tooltip.show({event, isTouch});
   }
 
   function hideTooltip() {
