@@ -108,12 +108,12 @@ RiptideLab.Tooltip = (function(){
 (function() {
   let currentTooltippedElement = null;
 
-  document.addEventListener('touchstart', function(event) {
+  RiptideLab.ui.addTapListener(document, function(event) {
     if (needsTooltip(event)) {
       event.preventDefault();
       showTooltip(event, {isTouch:true});
     }
-  }, {passive:false});
+  });
 
   document.addEventListener('click', function() {
     hideTooltip();
