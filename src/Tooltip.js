@@ -50,52 +50,20 @@ RiptideLab.Tooltip = (function(){
   }
 
   function setPositionFromEvent(event) {
-    const eventTop = getTop(event);
-    const eventLeft = getLeft(event);
+    const eventTop = RiptideLab.ui.getTop(event);
+    const eventLeft = RiptideLab.ui.getLeft(event);
     const newCoords = fitToScreen(eventLeft, eventTop);
     tooltipElement.style.top = newCoords[1] + 'px';
     tooltipElement.style.left = newCoords[0] + 'px';
-  }
-
-  function getLeft(event) {
-    if (event.pageX !== undefined)
-      return event.pageX;
-
-    if (event.touches?.[0].pageX !== undefined)
-      return event.touches?.[0].pageX;
-
-    const docElement = document.documentElement;
-    const scrollLeft = document.body?.scrollLeft || 0;
-    return (event.clientX +
-      (docElement.scrollLeft || scrollLeft) -
-      (docElement.clientLeft || 0));
-  }
-
-  function getTop(event) {
-    if (event.pageY !== undefined)
-      return event.pageY;
-
-    if (event.touches?.[0].pageY !== undefined)
-      return event.touches?.[0].pageY;
-
-    const docElement = document.documentElement;
-    const scrollTop = document.body?.scrollTop || 0;
-    return (event.clientY +
-      (docElement.scrollTop || scrollTop) -
-      (docElement.clientTop || 0));
   }
 
   function hide() {
     tooltipElement.style.display = 'none';
   }
 
-
-
-
-
   function fitToScreen(posX, posY) {
-    const scroll = scrollOffsets();
-    const viewport = viewportSize();
+    const scroll = RiptideLab.ui.scrollOffsets();
+    const viewport = RiptideLab.ui.viewportSize();
     const {offsetWidth, offsetHeight} = tooltipElement;
 
     posX += 8; // Offset from cursor a little
@@ -115,39 +83,6 @@ RiptideLab.Tooltip = (function(){
       posY -= posY + offsetHeight + 5 - scroll[1] - viewport[1];
 
     return [posX, posY];
-  }
-
-  function scrollOffsets() {
-    return [
-      window.visualViewport
-        ? window.visualViewport.pageLeft
-        : window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft,
-      window.visualViewport
-        ? window.visualViewport.pageTop
-        : window.pageYOffset || document.documentElement.scrollTop  || document.body.scrollTop
-    ];
-  }
-
-  function viewportSize () {
-    if (window.visualViewport)
-      return [window.visualViewport.width, window.visualViewport.height];
-
-    let ua = navigator.userAgent, rootElement;
-    if (ua.indexOf('AppleWebKit/') > -1 && !document.evaluate) {
-      rootElement = document;
-    } else if (Object.prototype.toString.call(window.opera) === '[object Opera]' && window.parseFloat(window.opera.version()) < 9.5) {
-      rootElement = document.body;
-    } else {
-      rootElement = document.documentElement;
-    }
-
-    // IE8 in quirks mode returns 0 for these sizes
-    const size = [rootElement.clientWidth, rootElement.clientHeight];
-    if (size[1] === 0) {
-      return [document.body.clientWidth, document.body.clientHeight];
-    } else {
-      return size;
-    }
   }
 
   function replaceContent(element, newContent) {
