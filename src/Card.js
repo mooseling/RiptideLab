@@ -28,6 +28,7 @@ RiptideLab.Card = function(cardName) {
   function createCardImg(imageURI) {
     const img = document.createElement('img');
     img.style.width = '200pt';
+    img.style.minHeight = '278.68pt';
     img.src = imageURI;
     return img;
   }
