@@ -37,7 +37,7 @@ RiptideLab.Tooltip = (function(){
         return;
       const viewer = RiptideLab.CardViewer(card, {isTouch});
       replaceTooltipContent(viewer);
-      updatePosition({event});
+      viewer.onLoad(() => updatePosition({event}));
       shownCard = cardName;
     }
   }
