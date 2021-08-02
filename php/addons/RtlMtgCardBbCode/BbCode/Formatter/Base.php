@@ -312,32 +312,31 @@ class Base
 
 
     public static function parseTagTest($children, $option, $tag, $options, $parentClass) {
+      $txt = $tag['children'][0];
+
+      $small = null;
       if ($tag['option'] != NULL)
       {
-          $card = $tag['option'];
-          $card = strtolower(trim($card));
-          preg_match('/([\s0-9-]*)(.*)/', $card, $bits);
-          return $bits[1].self::getCardTagHtml($bits[2], $tag['children'][0]);
+          $small = $tag['option'];
       }
-      else
-      {
-          @$txt = $tag['children'][0];
-          if (!is_string($txt))
-            return '';
 
-          $cards = preg_split("/[\r\n]/", $txt);
+      $cards = preg_split("/[\r\n]/", $txt);
 
-          foreach($cards as &$card) {
-              $card = trim($card);
-              $lcCard = strtolower($card);
-              preg_match('/([\s0-9-]*)(.*)/', $lcCard, $bits);
-              preg_match('/([\s0-9-]*)(.*)/', $card, $origBits);
-
-              $card = $bits[1].self::getCardTagHtml($bits[2], $origBits[2]);
+      foreach($cards as &$card) {
+          $card = trim($card);
+          if (empty($card))
+            continue;
+          $card = strtolower($card);
+          $safeCardName = htmlspecialchars($cardName);
+          if (strcasecmp($small, "small") == 0) {
+              $card = '<img class="RiptideLab--unloaded-card-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" data-card-name="'.$card.'" />';
           }
-
-          return implode("<br/>", $cards);
+          else {
+              $card = '<img class="RiptideLab--unloaded-card-image small" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" data-card-name="'.$card.'" />';
+          }
       }
+
+      return implode("", $cards);
     }
 
 
