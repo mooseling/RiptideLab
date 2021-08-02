@@ -10,9 +10,6 @@ RiptideLab.CardViewer = function(card, {isTouch, embedded} = {}) {
     viewer.style = RiptideLab.tooltipContentStyle;
     if (isTouch)
       viewer.appendChild(createDetailsButton());
-    viewer.onLoad = function(callback) {
-      cardIMG.onLoad = callback;
-    };
     return viewer;
   }
 
