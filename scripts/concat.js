@@ -5,7 +5,8 @@ concat(
     'src/RiptideLab.js',
     'src/ui.js',
     'src/Card.js',
-    'src/CardService.js',
+    'src/Card.js',
+    'src/CardViewer.js',
     'src/Tooltip.js'
   ],
   'build/RiptideLab.js'
