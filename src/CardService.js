@@ -9,23 +9,36 @@ RiptideLab.CardService = (function(){
     cardName = cardName.toLowerCase();
     const cachedCard = cardCache.get(cardName);
     if (cachedCard)
-      return translateToRiptideLab(cachedCard);
+      return translateToRiptideLab(cardName, cachedCard);
 
     const externalCard = await getCardFromExternalService(cardName);
-    return translateToRiptideLab(externalCard);
+    return translateToRiptideLab(cardName, externalCard);
   }
 
 
-  function translateToRiptideLab(cardObject) {
+  function translateToRiptideLab(cardName, cardObject) {
     const riptideCard = {
       name: cardObject.name,
       uri: cardObject.scryfall_uri,
       imageURI: cardObject.image_uris?.normal
     };
+    if (cardObject.card_faces) {
+      const correctFace = getCorrectFace(cardName, cardObject.card_faces);
+      riptideCard.name = correctFace.name;
+      riptideCard.imageURI = correctFace.image_uris?.normal;
+    }
     if (cardObject.isNoCard)
       riptideCard.isNoCard = true;
 
     return riptideCard;
+  }
+
+  function getCorrectFace(cardName, cardFaces) {
+    for (const cardFace of cardFaces) {
+      if (cardFace.name && cardFace.name.toLowerCase() === cardName)
+        return cardFace;
+    }
+    return cardFaces[0];
   }
 
   // When a card is not found, Scryfall returns a json response and a 404 status
@@ -57,7 +70,7 @@ RiptideLab.CardService = (function(){
   }
 
   function isValid(card) {
-    return Boolean(card?.name && card.scryfall_uri && card.image_uris?.normal);
+    return Boolean(card?.name && card.scryfall_uri && (card.image_uris?.normal || card.card_faces));
   }
 
   // A no-card must pass isValid()
