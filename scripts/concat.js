@@ -9,6 +9,7 @@ concat(
     'src/CardViewer.js',
     'src/CardService.js',
     'src/Tooltip.js',
+    'src/embedded-images.js',
     'src/_build-suffix'
   ],
   'build/RiptideLab.js'

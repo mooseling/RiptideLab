@@ -1,14 +1,20 @@
-RiptideLab.CardViewer = function(card, {isTouch} = {}) {
-  const viewer = document.createElement('div');
-  viewer.style = RiptideLab.tooltipContentStyle;
+RiptideLab.CardViewer = function(card, {isTouch, embedded} = {}) {
   const cardIMG = createCardIMG(card.imageURI);
-  viewer.appendChild(cardIMG);
-  if (isTouch)
-    viewer.appendChild(createDetailsButton());
-  viewer.onLoad = function(callback) {
-    cardIMG.onLoad = callback;
-  };
-  return viewer;
+  if (embedded) {
+    cardIMG.style.width = '223px';
+    cardIMG.style.height = '311.35px';
+    return cardIMG;
+  } else { // Tooltips
+    const viewer = document.createElement('div');
+    viewer.appendChild(cardIMG);
+    viewer.style = RiptideLab.tooltipContentStyle;
+    if (isTouch)
+      viewer.appendChild(createDetailsButton());
+    viewer.onLoad = function(callback) {
+      cardIMG.onLoad = callback;
+    };
+    return viewer;
+  }
 
 
   function createCardIMG(imageURI) {
