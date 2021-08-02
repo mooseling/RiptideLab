@@ -2,7 +2,8 @@ RiptideLab.Tooltip = (function(){
   const tooltipElement = document.createElement('div');
   tooltipElement.style = 'position:absolute;display:none;z-index:500';
   let isTouch = false;
-  let currentCard = null;
+  let lastRequestedCardName = null;
+  let shownCard = null;
 
   return {
     show(options) {
@@ -14,6 +15,7 @@ RiptideLab.Tooltip = (function(){
     },
     hide() {
       tooltipElement.style.display = 'none';
+      shownCard = null;
     }
   };
 
@@ -25,16 +27,18 @@ RiptideLab.Tooltip = (function(){
   }
 
   async function showCard(event) {
+    updatePosition({event});
     const cardName = event.target?.dataset?.cardName;
-    const card = cardName && RiptideLab.Card(cardName);
-    if (!card || RiptideLab.Card.areSame(card, currentCard))
-      return;
-    currentCard = card;
-    replaceTooltipContent(createLoadingMessage());
-    const viewer = await card.getViewer({isTouch});
-    if (RiptideLab.Card.areSame(card, currentCard)) {
+    if (lastRequestedCardName !== cardName) {
+      lastRequestedCardName = cardName;
+      showLoadingMessage();
+      const card = await RiptideLab.Card(cardName);
+      if (!card || lastRequestedCardName !== cardName || shownCard === cardName)
+        return;
+      const viewer = RiptideLab.CardViewer(card, {isTouch});
       replaceTooltipContent(viewer);
       updatePosition({event});
+      shownCard = cardName;
     }
   }
 
@@ -74,11 +78,11 @@ RiptideLab.Tooltip = (function(){
     tooltipElement.appendChild(newContent);
   }
 
-  function createLoadingMessage() {
+  function showLoadingMessage() {
     const message = document.createElement('div');
     message.innerHTML = 'Loading...';
     message.style = RiptideLab.tooltipContentStyle;
-    return message;
+    replaceTooltipContent(message);
   }
 })();
 
