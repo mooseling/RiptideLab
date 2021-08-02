@@ -1,13 +1,17 @@
 RiptideLab.CardViewer = function(card, {isTouch} = {}) {
   const viewer = document.createElement('div');
   viewer.style = RiptideLab.tooltipContentStyle;
-  viewer.appendChild(createCardImg(card.imageURI));
+  const cardIMG = createCardIMG(card.imageURI);
+  viewer.appendChild(cardIMG);
   if (isTouch)
     viewer.appendChild(createDetailsButton());
+  viewer.onLoad = function(callback) {
+    cardIMG.onLoad = callback;
+  };
   return viewer;
 
 
-  function createCardImg(imageURI) {
+  function createCardIMG(imageURI) {
     const img = document.createElement('img');
     // Fix the aspect ratio at 61:85, which magic cards should be
     // Fixed dimensions mean we can position the tooltip before the image has loaded
