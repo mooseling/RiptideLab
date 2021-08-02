@@ -18,8 +18,9 @@ RiptideLab.CardService = (function(){
 
   function translateToRiptideLab(cardObject) {
     const riptideCard = {
-      uri: cardObject?.scryfall_uri,
-      imageURI: cardObject?.image_uris?.normal
+      name: cardObject.name,
+      uri: cardObject.scryfall_uri,
+      imageURI: cardObject.image_uris?.normal
     };
     if (cardObject.isNoCard)
       riptideCard.isNoCard = true;
