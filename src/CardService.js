@@ -1,6 +1,6 @@
 RiptideLab.CardService = (function(){
-  const baseUrl = 'https://api.scryfall.com';
   const cardCache = CardCache();
+  const externalService = ExternalService(cardCache);
 
   return {getCard};
 
@@ -11,7 +11,7 @@ RiptideLab.CardService = (function(){
     if (cachedCard)
       return translateToRiptideLab(cardName, cachedCard);
 
-    const externalCard = await getCardFromExternalService(cardName);
+    const externalCard = await externalService.get(cardName);
     return translateToRiptideLab(cardName, externalCard);
   }
 
@@ -39,50 +39,6 @@ RiptideLab.CardService = (function(){
         return cardFace;
     }
     return cardFaces[0];
-  }
-
-  // When a card is not found, Scryfall returns a json response and a 404 status
-  async function getCardFromExternalService(cardName) {
-    const endpoint = 'cards/named?fuzzy=' + encodeURIComponent(cardName);
-    let card;
-
-    try {
-      const response = await get(endpoint);
-      card = await response.json(); // Had issues with blank responses on Edge
-    } catch (error) {}
-
-    if (!isValid(card))
-      card = getNoCard(cardName);
-
-    // If it is fuzzy matched, then we want to cache the actual card
-    const returnedCardName = card.name.toLowerCase();
-    if (cardName !== returnedCardName)
-      cardCache.addFuzzy(cardName, returnedCardName, card);
-    else
-      cardCache.add(cardName, card);
-
-    return card;
-  }
-
-
-  function get(endpoint) {
-    return fetch(`${baseUrl}/${endpoint}`);
-  }
-
-  function isValid(card) {
-    return Boolean(card?.name && card.scryfall_uri && (card.image_uris?.normal || card.card_faces));
-  }
-
-  // A no-card must pass isValid()
-  function getNoCard(cardName) {
-    return {
-      name:cardName,
-      isNoCard:true,
-      scryfall_uri:'https://scryfall.com/search?q=' + encodeURIComponent(cardName),
-      image_uris:{
-        normal:'/card-back.jpg'
-      }
-    };
   }
 
 
@@ -167,6 +123,56 @@ RiptideLab.CardService = (function(){
         if (cardJSON)
           return JSON.parse(cardJSON);
       }
+    }
+  }
+
+
+
+  // ====================================================
+  //                     ExternalService
+  // ====================================================
+  function ExternalService(cardCache) {
+    const baseUrl = 'https://api.scryfall.com';
+    return {get};
+
+
+    async function get(cardName) {
+      const endpoint = 'cards/named?fuzzy=' + encodeURIComponent(cardName);
+      let card;
+
+      // When a card is not found, Scryfall returns a json response and a 404 status
+      try {
+        const response = await fetch(`${baseUrl}/${endpoint}`);
+        card = await response.json(); // Had issues with blank responses on Edge
+      } catch (error) {}
+
+      if (!isValid(card))
+        card = getNoCard(cardName);
+
+      // If it is fuzzy matched, then we want to cache the actual card
+      const returnedCardName = card.name.toLowerCase();
+      if (cardName !== returnedCardName)
+        cardCache.addFuzzy(cardName, returnedCardName, card);
+      else
+        cardCache.add(cardName, card);
+
+      return card;
+    }
+
+    function isValid(card) {
+      return Boolean(card?.name && card.scryfall_uri && (card.image_uris?.normal || card.card_faces));
+    }
+
+    // A no-card must pass isValid()
+    function getNoCard(cardName) {
+      return {
+        name:cardName,
+        isNoCard:true,
+        scryfall_uri:'https://scryfall.com/search?q=' + encodeURIComponent(cardName),
+        image_uris:{
+          normal:'/card-back.jpg'
+        }
+      };
     }
   }
 }());
