@@ -1,6 +1,7 @@
 RiptideLab.CardService = (function(){
   const cardCache = CardCache();
   const externalService = ExternalService();
+  const queue = RateLimitingQueue();
 
   return {getCard};
 
@@ -11,6 +12,12 @@ RiptideLab.CardService = (function(){
     if (cachedCard)
       return translateToRiptideLab(cardName, cachedCard);
 
+    if (queue.isTooSoon()) {
+      await queue.wait();
+      return getCard(cardName);
+    }
+
+    queue.stampTime();
     const externalCard = await externalService.get(cardName);
     const returnedCardName = externalCard.name.toLowerCase();
     if (cardName !== returnedCardName) // Must be fuzzy matched (or double face, but that's fine)
@@ -168,6 +175,58 @@ RiptideLab.CardService = (function(){
           normal:'/card-back.jpg'
         }
       };
+    }
+  }
+
+
+  // ====================================================
+  //                     RateLimitingQueue
+  // ====================================================
+  function RateLimitingQueue() {
+    const interval = 100;
+    let lastTimeStamp = null;
+    let queueHandler = null;
+    const queue = [];
+
+    return {isTooSoon, stampTime, wait};
+
+
+    function isTooSoon() {
+      return getTimeLeft() > 0;
+    }
+
+    function stampTime() {
+      lastTimeStamp = Date.now();
+    }
+
+    function wait() {
+      const queueMember = {};
+      const promise = new Promise(resolve => queueMember.resolve = resolve);
+      queueMember.promise = promise;
+      queue.push(queueMember);
+      if (queueHandler === null)
+        queueHandler = setTimeout(handleQueue, getTimeLeft());
+      return promise;
+    }
+
+    function handleQueue() {
+      const timeLeft = getTimeLeft();
+      if (timeLeft > 0)
+        return setTimeout(handleQueue, timeLeft);
+
+      const firstQueueMember = queue[0];
+      queue.shift();
+      firstQueueMember.resolve();
+      if (queue.length)
+        queueHandler = setTimeout(handleQueue, getTimeLeft());
+      else
+        queueHandler = null;
+    }
+
+    function getTimeLeft() {
+      if (lastTimeStamp === null)
+        return 0;
+      return lastTimeStamp + interval - Date.now();
     }
   }
 }());
