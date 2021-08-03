@@ -1,6 +1,6 @@
 RiptideLab.CardService = (function(){
   const baseUrl = 'https://api.scryfall.com';
-  const cardCache = initCardCache();
+  const cardCache = CardCache();
 
   return {getCard};
 
@@ -91,7 +91,7 @@ RiptideLab.CardService = (function(){
   //                     Card Cache
   // ====================================================
 
-  function initCardCache() {
+  function CardCache() {
     if (typeof localStorage !== 'undefined') {
       return createLocalStorageCache();
     } else {
