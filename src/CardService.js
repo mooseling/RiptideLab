@@ -136,19 +136,17 @@ RiptideLab.CardService = (function(){
   //                     ExternalService
   // ====================================================
   function ExternalService() {
-    const baseUrl = 'https://api.scryfall.com';
     return {get};
 
 
     async function get(cardName) {
-      const endpoint = 'cards/named?fuzzy=' + encodeURIComponent(cardName);
       let card;
 
       // When a card is not found, Scryfall returns a json response and a 404 status
       try {
-        const response = await fetch(`${baseUrl}/${endpoint}`);
+        const response = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(cardName));
         card = await response.json(); // Had issues with blank responses on Edge
-      } catch (error) {}
+      } catch (error) {} // If such a thing happens, we just move on
 
       if (!isValid(card))
         card = getNoCard(cardName);
