@@ -1,6 +1,6 @@
 RiptideLab.CardService = (function(){
   const cardCache = CardCache();
-  const externalService = ExternalService(cardCache);
+  const externalService = ExternalService();
 
   return {getCard};
 
@@ -12,6 +12,11 @@ RiptideLab.CardService = (function(){
       return translateToRiptideLab(cardName, cachedCard);
 
     const externalCard = await externalService.get(cardName);
+    const returnedCardName = externalCard.name.toLowerCase();
+    if (cardName !== returnedCardName) // Must be fuzzy matched (or double face, but that's fine)
+      cardCache.addFuzzy(cardName, returnedCardName, externalCard);
+    else
+      cardCache.add(cardName, externalCard);
     return translateToRiptideLab(cardName, externalCard);
   }
 
@@ -29,7 +34,6 @@ RiptideLab.CardService = (function(){
     }
     if (cardObject.isNoCard)
       riptideCard.isNoCard = true;
-
     return riptideCard;
   }
 
@@ -131,7 +135,7 @@ RiptideLab.CardService = (function(){
   // ====================================================
   //                     ExternalService
   // ====================================================
-  function ExternalService(cardCache) {
+  function ExternalService() {
     const baseUrl = 'https://api.scryfall.com';
     return {get};
 
@@ -148,13 +152,6 @@ RiptideLab.CardService = (function(){
 
       if (!isValid(card))
         card = getNoCard(cardName);
-
-      // If it is fuzzy matched, then we want to cache the actual card
-      const returnedCardName = card.name.toLowerCase();
-      if (cardName !== returnedCardName)
-        cardCache.addFuzzy(cardName, returnedCardName, card);
-      else
-        cardCache.add(cardName, card);
 
       return card;
     }
