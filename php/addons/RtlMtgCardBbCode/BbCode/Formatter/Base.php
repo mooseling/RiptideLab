@@ -316,9 +316,7 @@ class Base
 
       $small = null;
       if ($tag['option'] != NULL)
-      {
           $small = $tag['option'];
-      }
 
       $cards = preg_split("/[\r\n]/", $txt);
 
@@ -327,16 +325,18 @@ class Base
           if (empty($card))
             continue;
           $card = strtolower($card);
-          $safeCardName = htmlspecialchars($cardName);
-          if (strcasecmp($small, "small") == 0) {
-              $card = '<img class="RiptideLab--unloaded-card-image" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" data-card-name="'.$card.'" />';
-          }
-          else {
-              $card = '<img class="RiptideLab--unloaded-card-image small" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" data-card-name="'.$card.'" />';
-          }
+          if (strcasecmp($small, "small") == 0)
+            $card = self::getEmbeddedCardHtml($card);
+          else
+            $card = self::getEmbeddedCardHtml($card, 'small');
       }
 
       return implode("", $cards);
+    }
+
+    private static function getEmbeddedCardHtml($cardName, $extraClasses = '') {
+      $safeCardName = htmlspecialchars($cardName);
+      return "<img class=\"RiptideLab--unloaded-card-image $extraClasses\" src=\"data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D\" data-card-name=\"$safeCardName\" />";
     }
 
 
