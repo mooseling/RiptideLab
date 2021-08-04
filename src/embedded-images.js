@@ -2,7 +2,8 @@
   async function replaceWithViewer(element) {
     const cardName = element.dataset.cardName;
     const card = await RiptideLab.Card(cardName);
-    const viewer = RiptideLab.CardViewer(card, {embedded: true});
+    const small = element.classList.contains('small');
+    const viewer = RiptideLab.CardViewer(card, {embedded: true, small});
     element.replaceWith(viewer);
   }
 

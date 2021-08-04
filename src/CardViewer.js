@@ -1,8 +1,13 @@
-RiptideLab.CardViewer = function(card, {isTouch, embedded} = {}) {
+RiptideLab.CardViewer = function(card, {isTouch, embedded, small} = {}) {
   const cardIMG = createCardIMG(card.imageURI);
   if (embedded) {
-    cardIMG.style.width = '223px';
-    cardIMG.style.height = '311.35px';
+    if (small) {
+      cardIMG.style.width = '167px';
+      cardIMG.style.height = '233.163px';
+    } else {
+      cardIMG.style.width = '223px';
+      cardIMG.style.height = '311.35px';
+    }
     return cardIMG;
   } else { // Tooltips
     const viewer = document.createElement('div');
