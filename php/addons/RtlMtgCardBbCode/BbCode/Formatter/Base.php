@@ -12,32 +12,26 @@ class Base
 
     public static function parseCardImage($children, $option, $tag, $options, $parentClass)
     {
-        $txt = $tag['children'][0];
+      $txt = $tag['children'][0];
 
-        $small = null;
-        if ($tag['option'] != NULL)
-        {
-            $small = $tag['option'];
-        }
+      $small = null;
+      if ($tag['option'] != NULL)
+          $small = $tag['option'];
 
-        $cards = preg_split("/[\r\n]/", $txt);
+      $cards = preg_split("/[\r\n]/", $txt);
 
-        foreach($cards as &$card) {
-            $card = trim($card);
-            if (empty($card))
-            	continue;
-            $card = strtolower($card);
-            if (strcasecmp($small, "small") == 0) {
-                $card = '<img src="http://gatherer.wizards.com/Handlers/Image.ashx?type=card&name='
-                    . $card .'" width="167" />';
-            }
-            else {
-                $card = '<img src="http://gatherer.wizards.com/Handlers/Image.ashx?type=card&name='
-                    . $card .'" width="223" />';
-            }
-        }
+      foreach($cards as &$card) {
+          $card = trim($card);
+          if (empty($card))
+            continue;
+          $card = strtolower($card);
+          if (strcasecmp($small, "small") == 0)
+            $card = self::getEmbeddedCardHtml($card);
+          else
+            $card = self::getEmbeddedCardHtml($card, 'small');
+      }
 
-        return implode("", $cards);
+      return implode("", $cards);
     }
 
     public static function parseCubeDeck($children, $option, $tag, $options, $parentClass)
