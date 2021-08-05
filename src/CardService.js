@@ -19,11 +19,7 @@ RiptideLab.CardService = (function(){
 
     rateLimter.stampTime();
     const externalCard = await externalService.get(cardName);
-    const returnedCardName = externalCard.name.toLowerCase();
-    if (cardName !== returnedCardName) // Must be fuzzy matched (or double face, but that's fine)
-      cardCache.addFuzzy(cardName, returnedCardName, externalCard);
-    else
-      cardCache.add(cardName, externalCard);
+    cardCache.add(cardName, externalCard);
     return translateToRiptideLab(cardName, externalCard);
   }
 
@@ -79,26 +75,11 @@ RiptideLab.CardService = (function(){
 
       return {
         add(cardName, card) {
-          if (card.isNoCard) {
-            memoryCache[cardName] = card;
-          } else {
-            localStorage.setItem(`RiptideLab--${cardName}`, JSON.stringify(card));
-            localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
-          }
-        },
-        addFuzzy(cardName, exactName, card) {
-          // Card should always be a valid card because of how this is called, but
-          // for safetly and extensibility...
-          if (card.isNoCard) {
-            memoryCache[cardName] = card;
-          } else {
-            const timeNow = Date.now();
-            localStorage.setItem(`RiptideLab--${exactName}`, JSON.stringify(card));
-            localStorage.setItem(`RiptideLab--${exactName}-timestamp`, timeNow);
-            // Fuzzy name can reference the exactName
-            localStorage.setItem(`RiptideLab--${cardName}`, `fuzzyReference--${exactName}`);
-            localStorage.setItem(`RiptideLab--${cardName}-timestamp`, timeNow);
-          }
+          const exactName = card.name.toLowerCase();
+          if (cardName !== exactName) // Fuzzy matched or double faced
+            addFuzzy(cardName, exactName, card);
+          else
+            addExact(cardName, card);
         },
         get(cardName) {
           if (memoryCache[cardName])
@@ -111,6 +92,30 @@ RiptideLab.CardService = (function(){
           }
         }
       };
+
+      function addExact(cardName, card) {
+        if (card.isNoCard) {
+          memoryCache[cardName] = card;
+        } else {
+          localStorage.setItem(`RiptideLab--${cardName}`, JSON.stringify(card));
+          localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
+        }
+      }
+
+      function addFuzzy(cardName, exactName, card) {
+        // Card should always be a valid card because of how this is called, but
+        // for safetly and extensibility...
+        if (card.isNoCard) {
+          memoryCache[cardName] = card;
+        } else {
+          const timeNow = Date.now();
+          localStorage.setItem(`RiptideLab--${exactName}`, JSON.stringify(card));
+          localStorage.setItem(`RiptideLab--${exactName}-timestamp`, timeNow);
+          // Fuzzy name can reference the exactName
+          localStorage.setItem(`RiptideLab--${cardName}`, `fuzzyReference--${exactName}`);
+          localStorage.setItem(`RiptideLab--${cardName}-timestamp`, timeNow);
+        }
+      }
 
       function cleanCache() {
         for (const key in localStorage) {
