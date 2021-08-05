@@ -1,7 +1,7 @@
 RiptideLab.CardService = (function(){
   const cardCache = CardCache();
   const externalService = ExternalService();
-  const queue = RateLimitingQueue();
+  const rateLimter = RateLimiter();
 
   return {getCard};
 
@@ -12,12 +12,12 @@ RiptideLab.CardService = (function(){
     if (cachedCard)
       return translateToRiptideLab(cardName, cachedCard);
 
-    if (queue.isTooSoon()) {
-      await queue.wait();
+    if (rateLimter.isTooSoon()) {
+      await rateLimter.waitMyTurn();
       return getCard(cardName);
     }
 
-    queue.stampTime();
+    rateLimter.stampTime();
     const externalCard = await externalService.get(cardName);
     const returnedCardName = externalCard.name.toLowerCase();
     if (cardName !== returnedCardName) // Must be fuzzy matched (or double face, but that's fine)
@@ -180,15 +180,15 @@ RiptideLab.CardService = (function(){
 
 
   // ====================================================
-  //                     RateLimitingQueue
+  //                     RateLimiter
   // ====================================================
-  function RateLimitingQueue() {
+  function RateLimiter() {
     const interval = 100;
     let lastTimeStamp = null;
     let queueHandler = null;
     const queue = [];
 
-    return {isTooSoon, stampTime, wait};
+    return {isTooSoon, stampTime, waitMyTurn};
 
 
     function isTooSoon() {
@@ -199,7 +199,7 @@ RiptideLab.CardService = (function(){
       lastTimeStamp = Date.now();
     }
 
-    function wait() {
+    function waitMyTurn() {
       const queueMember = {};
       const promise = new Promise(resolve => queueMember.resolve = resolve);
       queueMember.promise = promise;
