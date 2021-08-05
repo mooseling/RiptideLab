@@ -26,9 +26,9 @@ class Base
             continue;
           $card = strtolower($card);
           if (strcasecmp($small, "small") == 0)
-            $card = self::getEmbeddedCardHtml($card);
-          else
             $card = self::getEmbeddedCardHtml($card, 'small');
+          else
+            $card = self::getEmbeddedCardHtml($card);
       }
 
       return implode("", $cards);
@@ -320,9 +320,9 @@ class Base
             continue;
           $card = strtolower($card);
           if (strcasecmp($small, "small") == 0)
-            $card = self::getEmbeddedCardHtml($card);
-          else
             $card = self::getEmbeddedCardHtml($card, 'small');
+          else
+            $card = self::getEmbeddedCardHtml($card);
       }
 
       return implode("", $cards);
