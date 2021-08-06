@@ -1,27 +1,35 @@
 (function() {
-  async function replaceWithViewer(element) {
-    element.classList.remove('RiptideLab--unloaded-card-image');
-    const cardName = element.dataset.cardName;
-    const card = await RiptideLab.Card(cardName);
-    const small = element.classList.contains('small');
-    const viewer = RiptideLab.CardViewer(card, {embedded: true, small});
-    element.replaceWith(viewer);
-  }
-
+  // When a user posts, catch load events from images in the new content
   document.addEventListener(
     'load',
     async function(event) {
       const img = event.target;
-      const classList = img?.classList;
-      if (classList && classList.contains('RiptideLab--unloaded-card-image'))
+      if (img?.classList?.contains('RiptideLab--unloaded-card-image'))
         replaceWithViewer(img);
     },
     true // Catch load events during the capture phase, since img loads do not bubble
   );
 
+  // In theory, the listener above will fire on page load
+  // But for an unknown reason, it doesn't on the forum
+  // So we fire this when the page is ready
   document.addEventListener('DOMContentLoaded', function() {
-    const elementsToLoad = document.getElementsByClassName('RiptideLab--unloaded-card-image');
-    for (const element of elementsToLoad)
+    const elementsToReplace = document.getElementsByClassName('RiptideLab--unloaded-card-image');
+    for (const element of elementsToReplace)
       replaceWithViewer(element);
   });
+
+
+  async function replaceWithViewer(element) {
+    // Prevent double handling elements, which may happen because of our two listeners
+    element.classList.remove('RiptideLab--unloaded-card-image');
+
+    element.replaceWith(RiptideLab.CardViewer(
+      await RiptideLab.Card(element.dataset.cardName),
+      {
+        embedded: true,
+        small: element.classList.contains('small')
+      }
+    ));
+  }
 })();
