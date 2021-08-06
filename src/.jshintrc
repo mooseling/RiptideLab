@@ -3,8 +3,17 @@
   "undef":true,
   "unused":true,
   "esversion":11,
+  "globals":{"RiptideLab":true},
+
+  // Unreachable statement after return
+  // Doesn't account for hoisted async functions, which I use
   "-W027":true,
+
+  // Misleading line breaks
+  // Flags ?: statements split across lines
   "-W014":true,
-  "-W067":true,
-  "globals":{"RiptideLab":true}
+
+  // Unorthodox function invocation
+  // Flags path?.to?.function()
+  "-W067":true
 }
