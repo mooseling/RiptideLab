@@ -1,5 +1,6 @@
 (function() {
   async function replaceWithViewer(element) {
+    element.classList.remove('RiptideLab--unloaded-card-image');
     const cardName = element.dataset.cardName;
     const card = await RiptideLab.Card(cardName);
     const small = element.classList.contains('small');
