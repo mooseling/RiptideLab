@@ -1,26 +1,37 @@
 RiptideLab.CardService = (function(){
   const cardCache = CardCache();
   const externalService = ExternalService();
-  const rateLimter = RateLimiter();
+  const rateLimiter = RateLimiter();
+  const currentFetches = {};
 
   return {getCard};
 
 
   async function getCard(cardName) {
     cardName = cardName.toLowerCase();
+    const externalCard = await getExternalCard(cardName);
+    return translateToRiptideLab(cardName, externalCard);
+  }
+
+  async function getExternalCard(cardName) {
     const cachedCard = cardCache.get(cardName);
     if (cachedCard)
-      return translateToRiptideLab(cardName, cachedCard);
+      return cachedCard;
 
-    if (rateLimter.isTooSoon()) {
-      await rateLimter.waitMyTurn();
-      return getCard(cardName);
+    if (rateLimiter.isTooSoon()) {
+      await rateLimiter.waitMyTurn();
+      return getExternalCard(cardName); // Start from the top so we check the cache again
+    } if (currentFetches[cardName]) {
+      await currentFetches[cardName];
+      return getExternalCard(cardName); // Original fetch has cached the card
     }
 
-    rateLimter.stampTime();
-    const externalCard = await externalService.get(cardName);
+    rateLimiter.stampTime();
+    const cardFetch = currentFetches[cardName] = externalService.get(cardName);
+    const externalCard = await cardFetch;
     cardCache.add(cardName, externalCard);
-    return translateToRiptideLab(cardName, externalCard);
+    delete currentFetches[cardName];
+    return externalCard;
   }
 
 
