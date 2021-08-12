@@ -335,9 +335,9 @@ class Base
 
 
 
-    private static function getCardTagHtml($cardName, $displayText) {
+    private static function getCardTagHtml($cardName, $displayText = null) {
       $safeCardName = htmlspecialchars($cardName);
-      $safeDisplayText = htmlspecialchars($displayText);
+      $safeDisplayText = is_string($displayText) ? htmlspecialchars($displayText) : $safeCardName;
       $queryString = htmlspecialchars(http_build_query(['q' => $cardName], null, '&', PHP_QUERY_RFC3986));
       return "<a class=RiptideLab--card-hover href=\"https://scryfall.com/search?$queryString\" target=_blank data-card-name=\"$safeCardName\">$safeDisplayText</a>";
     }
