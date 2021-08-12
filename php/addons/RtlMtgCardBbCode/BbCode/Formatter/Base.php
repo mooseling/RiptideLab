@@ -236,8 +236,7 @@ class Base
                 }
 
                 $card = str_replace("�", "'", $card);
-                $line = $bits[1] . '&nbsp;<a href="http://deckbox.org/mtg/'. $card .
-                    '">' . $card . '</a>';
+                $line = $bits[1] . '&nbsp;' . self::getCardTagHtml($card, $card);
                 if ($comment) {
                     $line .= '&nbsp;#' . $comment;
                 }
