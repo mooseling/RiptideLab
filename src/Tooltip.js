@@ -98,7 +98,7 @@ RiptideLab.Tooltip = (function(){
   RiptideLab.ui.addTapListener(document, function(event) {
     if (needsTooltip(event)) {
       event.preventDefault();
-      showTooltip(event, {isTouch:true});
+      showTooltip(event, true); // second param is isTouch
     }
   });
 
