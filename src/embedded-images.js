@@ -15,7 +15,9 @@
   // So we fire this when the page is ready
   document.addEventListener('DOMContentLoaded', function() {
     const elementsToReplace = document.getElementsByClassName('RiptideLab--unloaded-card-image');
-    for (const element of elementsToReplace)
+    // Curiously, replacing elements, though async, removes them from the collection
+    // for..of doesn't work if the elements are disappearing, so we cast it to an array
+    for (const element of Array.from(elementsToReplace))
       replaceWithViewer(element);
   });
 
