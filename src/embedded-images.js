@@ -28,7 +28,8 @@
       await RiptideLab.Card(element.dataset.cardName),
       {
         embedded: true,
-        small: element.classList.contains('small')
+        small: element.classList.contains('small'),
+        inCubedeck: element.classList.contains('in-cubedeck')
       }
     ));
   }
