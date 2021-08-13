@@ -171,7 +171,9 @@ RiptideLab.CardService = (function(){
         card = await response.json(); // Had issues with blank responses on Edge
       } catch (error) {} // If such a thing happens, we just move on
 
-      if (!isValid(card))
+      if (isValid(card))
+        card = getLessDetailed(card); // Remove unused properties, since we're going to cache this
+      else
         card = getNoCard(cardName);
 
       return card;
@@ -179,6 +181,14 @@ RiptideLab.CardService = (function(){
 
     function isValid(card) {
       return Boolean(card?.name && card.scryfall_uri && (card.image_uris?.normal || card.card_faces));
+    }
+
+    function getLessDetailed(card) {
+      const {name, scryfall_uri, image_uris, card_faces} = card;
+      const trimmedCard = {name, scryfall_uri, image_uris};
+      if (card_faces)
+        trimmedCard.card_faces = card_faces;
+      return trimmedCard;
     }
 
     // A no-card must pass isValid()
