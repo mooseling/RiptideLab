@@ -1,14 +1,12 @@
 RiptideLab.Tooltip = (function(){
   const tooltipElement = document.createElement('div');
   tooltipElement.style = 'position:absolute;display:none;z-index:500';
-  let isTouch = false;
   let lastRequestedCardName = null;
   let shownCard = null;
 
   return {
     show(options) {
-      if (options)
-        update(options);
+      showCard(options);
       tooltipElement.style.display = '';
       document.body.appendChild(tooltipElement);
       updatePosition(options);
@@ -19,25 +17,18 @@ RiptideLab.Tooltip = (function(){
     }
   };
 
-
-
-  function update({isTouch, event}) {
-    isTouch = Boolean(isTouch); // We want to convert undefined to false
-    showCard(event);
-  }
-
-  async function showCard(event) {
-    updatePosition({event});
-    const cardName = event.target?.dataset?.cardName;
+  async function showCard(options) {
+    updatePosition(options);
+    const cardName = options.event.target?.dataset?.cardName;
     if (lastRequestedCardName !== cardName) {
       lastRequestedCardName = cardName;
       showLoadingMessage();
       const card = await RiptideLab.Card(cardName);
       if (!card || lastRequestedCardName !== cardName || shownCard === cardName)
         return;
-      const viewer = RiptideLab.CardViewer(card, {isTouch});
+      const viewer = RiptideLab.CardViewer(card, options);
       replaceTooltipContent(viewer);
-      updatePosition({event});
+      updatePosition(options);
       shownCard = cardName;
     }
   }
