@@ -38,10 +38,18 @@ RiptideLab.CardService = (function(){
   function translateToRiptideLab(cardName, cardObject) {
     const riptideCard = {
       name: cardObject.name,
-      uri: cardObject.scryfall_uri,
-      imageURI: cardObject.image_uris?.normal
+      uri: cardObject.scryfall_uri
     };
-    if (cardObject.card_faces) {
+    // We need to deal with split cards and double-faced cards
+    // Double-faced:
+    // --> DO NOT have image_uris
+    // --> DO have card_faces, and image_uris are contained within
+    // Split cards: (includes adventures)
+    // --> DO have image_uris
+    // --> DO have card_faces, but with no image_uris
+    if (cardObject.image_uris) { // Must be a normal or split
+      riptideCard.imageURI = cardObject.image_uris.normal;
+    } else if (cardObject.card_faces) { // Must be double-faced
       const correctFace = getCorrectFace(cardName, cardObject.card_faces);
       riptideCard.name = correctFace.name;
       riptideCard.imageURI = correctFace.image_uris?.normal;
