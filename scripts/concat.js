@@ -1,15 +1,10 @@
 const concat = require('concat');
+const riptideLabSources = require('./riptideLabSources.js');
 
 concat(
   [
     'src/_build-prefix',
-    'src/RiptideLab.js',
-    'src/ui.js',
-    'src/Card.js',
-    'src/CardViewer.js',
-    'src/CardService.js',
-    'src/Tooltip.js',
-    'src/embedded-images.js',
+    ...riptideLabSources,
     'src/_build-suffix'
   ],
   'build/RiptideLab.js'
