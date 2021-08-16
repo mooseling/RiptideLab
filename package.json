@@ -8,7 +8,8 @@
     "concat": "node scripts/concat.js",
     "concat-node": "node scripts/concat-node.js",
     "minify": "uglifyjs build/RiptideLab.js --mangle > build/RiptideLab.min.js",
-    "build": "npm run concat && npm run minify"
+    "build": "npm run concat && npm run minify",
+    "test": "npm run concat-node && mocha"
   },
   "repository": {
     "type": "git",
