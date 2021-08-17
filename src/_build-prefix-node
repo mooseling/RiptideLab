@@ -1,1 +1,0 @@
-const document = require('../test/document-mock.js');
