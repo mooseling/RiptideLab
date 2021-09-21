@@ -1,6 +1,13 @@
-RiptideLab.Tooltip = (function(){
+import {ui} from './ui.js';
+import {Card} from './Card.js';
+import {CardViewer} from './CardViewer.js';
+import {applyTooltipContentStyle} from './constants.js';
+
+const Tooltip = (function(){
   const tooltipElement = document.createElement('div');
-  tooltipElement.style = 'position:absolute;display:none;z-index:500';
+  tooltipElement.style.position = 'absolute';
+  tooltipElement.style.display = 'none';
+  tooltipElement.style.zIndex = '500';
   let lastRequestedCardName = null;
   let shownCard = null;
 
@@ -23,10 +30,10 @@ RiptideLab.Tooltip = (function(){
     if (lastRequestedCardName !== cardName) {
       lastRequestedCardName = cardName;
       showLoadingMessage();
-      const card = await RiptideLab.Card(cardName);
+      const card = await Card(cardName);
       if (!card || lastRequestedCardName !== cardName || shownCard === cardName)
         return;
-      const viewer = RiptideLab.CardViewer(card, options);
+      const viewer = CardViewer(card, options);
       replaceTooltipContent(viewer);
       updatePosition(options);
       shownCard = cardName;
@@ -39,10 +46,10 @@ RiptideLab.Tooltip = (function(){
   }
 
   function fitToScreen(event) {
-    let posX = RiptideLab.ui.getLeft(event);
-    let posY = RiptideLab.ui.getTop(event);
-    const [scrollX, scrollY] = RiptideLab.ui.scrollOffsets();
-    const viewport = RiptideLab.ui.viewportSize();
+    let posX = ui.getLeft(event);
+    let posY = ui.getTop(event);
+    const [scrollX, scrollY] = ui.scrollOffsets();
+    const viewport = ui.viewportSize();
     const {offsetWidth, offsetHeight} = tooltipElement;
 
     posX += 8; // Offset from cursor a little
@@ -72,7 +79,7 @@ RiptideLab.Tooltip = (function(){
   function showLoadingMessage() {
     const message = document.createElement('div');
     message.innerHTML = 'Loading...';
-    message.style = RiptideLab.tooltipContentStyle;
+    applyTooltipContentStyle(message);
     replaceTooltipContent(message);
   }
 })();
@@ -83,10 +90,10 @@ RiptideLab.Tooltip = (function(){
 //                 Add event handlers
 // ====================================================
 
-(function() {
+function addTooltipHandlers() {
   let currentTooltippedElement = null;
 
-  RiptideLab.ui.addTapListener(document, function(event) {
+  ui.addTapListener(document, function(event) {
     if (needsTooltip(event)) {
       event.preventDefault();
       showTooltip(event, true); // second param is isTouch
@@ -125,13 +132,15 @@ RiptideLab.Tooltip = (function(){
   }
 
 
-  function showTooltip(event, isTouch) {
+  function showTooltip(event, isTouch?) {
     currentTooltippedElement = event.target;
-    RiptideLab.Tooltip.show({event, isTouch});
+    Tooltip.show({event, isTouch});
   }
 
   function hideTooltip() {
-    RiptideLab.Tooltip.hide();
+    Tooltip.hide();
     currentTooltippedElement = null;
   }
-})();
+}
+
+export {addTooltipHandlers};

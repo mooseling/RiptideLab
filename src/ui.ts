@@ -1,4 +1,10 @@
-RiptideLab.ui = {
+declare global {
+  interface Window {
+    opera: any;
+  }
+}
+
+const ui = {
   getLeft(event) {
     if (event.pageX !== undefined)
       return event.pageX;
@@ -74,14 +80,16 @@ RiptideLab.ui = {
     });
 
     function setCoordinates(event) {
-      startLeft = RiptideLab.ui.getLeft(event);
-      startTop = RiptideLab.ui.getTop(event);
+      startLeft = ui.getLeft(event);
+      startTop = ui.getTop(event);
     }
 
     function wasNoMovement(event) {
-      const newLeft = RiptideLab.ui.getLeft(event);
-      const newTop = RiptideLab.ui.getTop(event);
+      const newLeft = ui.getLeft(event);
+      const newTop = ui.getTop(event);
       return newLeft === startLeft && newTop === startTop;
     }
   }
 };
+
+export {ui};

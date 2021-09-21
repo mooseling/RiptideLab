@@ -1,4 +1,14 @@
-RiptideLab.CardService = (function(){
+interface ScryfallCard {
+  name: string,
+  scryfall_uri: string,
+  image_uris?: {
+    normal: string
+  },
+  card_faces?: [ScryfallCard],
+  isNoCard?: boolean
+}
+
+const CardService = (function(){
   const cardCache = CardCache();
   const externalService = ExternalService();
   const rateLimiter = RateLimiter();
@@ -7,13 +17,13 @@ RiptideLab.CardService = (function(){
   return {getCard};
 
 
-  async function getCard(cardName) {
+  async function getCard(cardName: string) {
     cardName = cardName.toLowerCase();
     const externalCard = await getExternalCard(cardName);
     return translateToRiptideLab(cardName, externalCard);
   }
 
-  async function getExternalCard(cardName) {
+  async function getExternalCard(cardName: string) {
     const cachedCard = cardCache.get(cardName);
     if (cachedCard)
       return cachedCard;
@@ -35,11 +45,9 @@ RiptideLab.CardService = (function(){
   }
 
 
-  function translateToRiptideLab(cardName, cardObject) {
-    const riptideCard = {
-      name: cardObject.name,
-      uri: cardObject.scryfall_uri
-    };
+  function translateToRiptideLab(cardName: string, cardObject: ScryfallCard) {
+    let name: string, imageURI: string, isNoCard: boolean;
+    const uri = cardObject.scryfall_uri;
     // We need to deal with split cards and double-faced cards
     // Double-faced:
     // --> DO NOT have image_uris
@@ -48,24 +56,26 @@ RiptideLab.CardService = (function(){
     // --> DO have image_uris
     // --> DO have card_faces, but with no image_uris
     if (cardObject.image_uris) { // Must be a normal or split
-      riptideCard.imageURI = cardObject.image_uris.normal;
+      name = cardObject.name;
+      imageURI = cardObject.image_uris.normal;
     } else if (cardObject.card_faces) { // Must be double-faced
       const correctFace = getCorrectFace(cardName, cardObject.card_faces);
-      riptideCard.name = correctFace.name;
-      riptideCard.imageURI = correctFace.image_uris?.normal;
+      name = correctFace.name;
+      imageURI = correctFace.image_uris?.normal;
     }
     if (cardObject.isNoCard)
-      riptideCard.isNoCard = true;
-    return riptideCard;
+      isNoCard = true;
+    return {name, uri, imageURI, isNoCard};
   }
 
-  function getCorrectFace(cardName, cardFaces) {
+  function getCorrectFace(cardName: string, cardFaces: [ScryfallCard]) {
     for (const cardFace of cardFaces) {
       if (cardFace.name && cardFace.name.toLowerCase() === cardName)
         return cardFace;
     }
     return cardFaces[0];
   }
+})();
 
 
 
@@ -79,10 +89,10 @@ RiptideLab.CardService = (function(){
     } else {
       const cache = {};
       return {
-        add(cardName, card) {
+        add(cardName: string, card) {
           cache[cardName] = card;
         },
-        get(cardName) {
+        get(cardName: string) {
           return cache[cardName];
         }
       };
@@ -93,14 +103,14 @@ RiptideLab.CardService = (function(){
       cleanCache();
 
       return {
-        add(cardName, card) {
+        add(cardName: string, card) {
           const exactName = card.name.toLowerCase();
           if (cardName !== exactName) // Fuzzy matched or double faced
             addFuzzy(cardName, exactName, card);
           else
             addExact(cardName, card);
         },
-        get(cardName) {
+        get(cardName: string) {
           if (memoryCache[cardName])
             return memoryCache[cardName];
           let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
@@ -112,22 +122,22 @@ RiptideLab.CardService = (function(){
         }
       };
 
-      function addExact(cardName, card) {
+      function addExact(cardName:string, card: ScryfallCard) {
         if (card.isNoCard) {
           memoryCache[cardName] = card;
         } else {
           localStorage.setItem(`RiptideLab--${cardName}`, JSON.stringify(card));
-          localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now());
+          localStorage.setItem(`RiptideLab--${cardName}-timestamp`, Date.now().toString()); // Explicitly call toString so TypeScript is happy
         }
       }
 
-      function addFuzzy(cardName, exactName, card) {
+      function addFuzzy(cardName: string, exactName: string, card) {
         // Card should always be a valid card because of how this is called, but
         // for safetly and extensibility...
         if (card.isNoCard) {
           memoryCache[cardName] = card;
         } else {
-          const timeNow = Date.now();
+          const timeNow = Date.now().toString(); // Explicitly call toString so TypeScript is happy
           localStorage.setItem(`RiptideLab--${exactName}`, JSON.stringify(card));
           localStorage.setItem(`RiptideLab--${exactName}-timestamp`, timeNow);
           // Fuzzy name can reference the exactName
@@ -139,7 +149,7 @@ RiptideLab.CardService = (function(){
       function cleanCache() {
         for (const key in localStorage) {
           if (localStorage.hasOwnProperty(key) && isCacheTimeStamp(key)) {
-            const timestamp = localStorage.getItem(key);
+            const timestamp = parseInt(localStorage.getItem(key));
             if (Date.now() - timestamp > 2419200000) { // 4 weeks
               localStorage.removeItem(key);
               localStorage.removeItem(key.slice(0, -10));
@@ -148,11 +158,11 @@ RiptideLab.CardService = (function(){
         }
       }
 
-      function isCacheTimeStamp(string) {
+      function isCacheTimeStamp(string: string) {
         return string.startsWith('RiptideLab--') && string.endsWith('-timestamp');
       }
 
-      function getFromFuzzyReference(fuzzyReference) {
+      function getFromFuzzyReference(fuzzyReference: string) {
         const cardName = fuzzyReference.slice(16);
         let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
         if (cardJSON)
@@ -163,104 +173,111 @@ RiptideLab.CardService = (function(){
 
 
 
-  // ====================================================
-  //                     ExternalService
-  // ====================================================
-  function ExternalService() {
-    return {get};
+// ====================================================
+//                     ExternalService
+// ====================================================
+function ExternalService() {
+  return {get};
 
 
-    async function get(cardName) {
-      let card;
+  async function get(cardName: string) {
+    let card: ScryfallCard;
 
-      // When a card is not found, Scryfall returns a json response and a 404 status
-      try {
-        const response = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(cardName));
-        card = await response.json(); // Had issues with blank responses on Edge
-      } catch (error) {} // If such a thing happens, we just move on
+    // When a card is not found, Scryfall returns a json response and a 404 status
+    try {
+      const response = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(cardName));
+      card = await response.json(); // Had issues with blank responses on Edge
+    } catch (error) {} // If such a thing happens, we just move on
 
-      if (isValid(card))
-        card = getLessDetailed(card); // Remove unused properties, since we're going to cache this
-      else
-        card = getNoCard(cardName);
+    if (isValid(card))
+      card = getLessDetailed(card); // Remove unused properties, since we're going to cache this
+    else
+      card = getNoCard(cardName);
 
-      return card;
-    }
-
-    function isValid(card) {
-      return Boolean(card?.name && card.scryfall_uri && (card.image_uris?.normal || card.card_faces));
-    }
-
-    function getLessDetailed(card) {
-      const {name, scryfall_uri, image_uris, card_faces} = card;
-      const trimmedCard = {name, scryfall_uri, image_uris};
-      if (card_faces)
-        trimmedCard.card_faces = card_faces;
-      return trimmedCard;
-    }
-
-    // A no-card must pass isValid()
-    function getNoCard(cardName) {
-      return {
-        name:cardName,
-        isNoCard:true,
-        scryfall_uri:'https://scryfall.com/search?q=' + encodeURIComponent(cardName),
-        image_uris:{
-          normal:'/card-back.jpg'
-        }
-      };
-    }
+    return card;
   }
 
-
-  // ====================================================
-  //                     RateLimiter
-  // ====================================================
-  function RateLimiter() {
-    const interval = 100;
-    let lastTimeStamp = null;
-    let queueHandler = null;
-    const queue = [];
-
-    return {isTooSoon, stampTime, waitMyTurn};
-
-
-    function isTooSoon() {
-      return getTimeLeft() > 0;
-    }
-
-    function stampTime() {
-      lastTimeStamp = Date.now();
-    }
-
-    function waitMyTurn() {
-      const queueMember = {};
-      const promise = new Promise(resolve => queueMember.resolve = resolve);
-      queueMember.promise = promise;
-      queue.push(queueMember);
-      if (queueHandler === null)
-        queueHandler = setTimeout(handleQueue, getTimeLeft());
-      return promise;
-    }
-
-    function handleQueue() {
-      const timeLeft = getTimeLeft();
-      if (timeLeft > 0)
-        return setTimeout(handleQueue, timeLeft);
-
-      const firstQueueMember = queue[0];
-      queue.shift();
-      firstQueueMember.resolve();
-      if (queue.length)
-        queueHandler = setTimeout(handleQueue, getTimeLeft());
-      else
-        queueHandler = null;
-    }
-
-    function getTimeLeft() {
-      if (lastTimeStamp === null)
-        return 0;
-      return lastTimeStamp + interval - Date.now();
-    }
+  function isValid(card: ScryfallCard) {
+    return Boolean(card?.name && card.scryfall_uri && (card.image_uris?.normal || card.card_faces));
   }
-}());
+
+  function getLessDetailed(card: ScryfallCard) {
+    const {name, scryfall_uri, image_uris, card_faces} = card;
+    const trimmedCard: ScryfallCard = {name, scryfall_uri, image_uris};
+    if (card_faces)
+      trimmedCard.card_faces = card_faces;
+    return trimmedCard;
+  }
+
+  // A no-card must pass isValid()
+  function getNoCard(cardName: string) {
+    return {
+      name:cardName,
+      isNoCard:true,
+      scryfall_uri:'https://scryfall.com/search?q=' + encodeURIComponent(cardName),
+      image_uris:{
+        normal:'/card-back.jpg'
+      }
+    };
+  }
+}
+
+
+
+// ====================================================
+//                     RateLimiter
+// ====================================================
+
+interface QueueMember {
+  resolve: (value?: unknown) => void,
+  promise: Promise<unknown>
+}
+
+function RateLimiter() {
+  const interval = 100;
+  let lastTimeStamp = null;
+  let queueHandler = null;
+  const queue:QueueMember[] = [];
+
+  return {isTooSoon, stampTime, waitMyTurn};
+
+
+  function isTooSoon() {
+    return getTimeLeft() > 0;
+  }
+
+  function stampTime() {
+    lastTimeStamp = Date.now();
+  }
+
+  function waitMyTurn() {
+    let resolve: (value: unknown) => void;
+    const promise = new Promise(r => resolve = r);
+    queue.push({resolve, promise});
+    if (queueHandler === null)
+      queueHandler = setTimeout(handleQueue, getTimeLeft());
+    return promise;
+  }
+
+  function handleQueue() {
+    const timeLeft = getTimeLeft();
+    if (timeLeft > 0)
+      return setTimeout(handleQueue, timeLeft);
+
+    const firstQueueMember = queue[0];
+    queue.shift();
+    firstQueueMember.resolve();
+    if (queue.length)
+      queueHandler = setTimeout(handleQueue, getTimeLeft());
+    else
+      queueHandler = null;
+  }
+
+  function getTimeLeft() {
+    if (lastTimeStamp === null)
+      return 0;
+    return lastTimeStamp + interval - Date.now();
+  }
+}
+
+export {CardService};

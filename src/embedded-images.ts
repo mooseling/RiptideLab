@@ -1,9 +1,12 @@
-(function() {
+import {Card} from './Card.js';
+import {CardViewer} from './CardViewer.js';
+
+function addEmbeddedImageListeners() {
   // When a user posts, catch load events from images in the new content
   document.addEventListener(
     'load',
     async function(event) {
-      const img = event.target;
+      const img = event.target as HTMLElement;
       if (img?.classList?.contains('RiptideLab--unloaded-card-image'))
         replaceWithViewer(img);
     },
@@ -26,8 +29,8 @@
     // Prevent double handling elements, which may happen because of our two listeners
     element.classList.remove('RiptideLab--unloaded-card-image');
 
-    element.replaceWith(RiptideLab.CardViewer(
-      await RiptideLab.Card(element.dataset.cardName),
+    element.replaceWith(CardViewer(
+      await Card(element.dataset.cardName),
       {
         embedded: true,
         small: element.classList.contains('small'),
@@ -35,4 +38,6 @@
       }
     ));
   }
-})();
+}
+
+export {addEmbeddedImageListeners};

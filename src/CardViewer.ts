@@ -1,4 +1,6 @@
-RiptideLab.CardViewer = function(card, {isTouch, embedded, small, inCubedeck} = {}) {
+import {applyTooltipContentStyle} from './constants.js';
+
+const CardViewer = function(card, {isTouch = false, embedded = false, small = false, inCubedeck = false} = {}) {
     const cardIMG = createCardIMG();
     if (embedded) {
       if (inCubedeck) {
@@ -13,7 +15,7 @@ RiptideLab.CardViewer = function(card, {isTouch, embedded, small, inCubedeck} = 
     // ...must be a tooltip tooltip
     const viewer = document.createElement('div');
     viewer.appendChild(cardIMG);
-    viewer.style = RiptideLab.tooltipContentStyle;
+    applyTooltipContentStyle(viewer);
     if (isTouch)
       viewer.appendChild(createDetailsButton());
     return viewer;
@@ -59,3 +61,5 @@ RiptideLab.CardViewer = function(card, {isTouch, embedded, small, inCubedeck} = 
     return anchor;
   }
 };
+
+export {CardViewer};
