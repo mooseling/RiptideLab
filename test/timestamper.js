@@ -18,4 +18,4 @@ function getSmallestGap() {
   return smallestGap;
 }
 
-module.exports = {stamp, getSmallestGap};
+export {stamp, getSmallestGap};

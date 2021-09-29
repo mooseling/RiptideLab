@@ -1,36 +1,35 @@
 /* global describe, it, before */
 
-const assert = require('chai').assert;
-global.document = require('./document-mock.js');
-const fetchMock = require('fetch-mock');
-const RiptideLab = require('../build/RiptideLab.node.js');
+import * as fs from 'fs';
+import {assert}  from 'chai';
+import * as fetchMock from 'fetch-mock';
+import * as document from './document-mock.js';
+global.document = document;
 
-describe('RiptideLab', function() {
-  it('is a variable', () => assert(typeof RiptideLab !== 'undefined'));
-  it('has tooltipContentStyle', () => assert(RiptideLab.tooltipContentStyle !== undefined));
-  it('has ui', () => assert(RiptideLab.ui !== undefined));
-  it('has Card', () => assert(RiptideLab.Card !== undefined));
-  it('has CardViewer', () => assert(RiptideLab.CardViewer !== undefined));
-  it('has CardService', () => assert(RiptideLab.CardService !== undefined));
-  it('has Tooltip', () => assert(RiptideLab.Tooltip !== undefined));
-});
+// RiptideLab Modules
+import {CardService} from '../build/CardService.js';
+
+// JSON responses to test against
+const brushwaggJSON = fs.readFileSync('./card-responses/brushwagg.json');
+const juggernaughtJSON = fs.readFileSync('./card-responses/juggernaught.json');
+const forestJSON = fs.readFileSync('./card-responses/forest.json');
+const plainsJSON = fs.readFileSync('./card-responses/plains.json');
+const mountainJSON = fs.readFileSync('./card-responses/mountain.json');
+
+// Miscellaneous
+import * as timestamper from './timestamper.js';
 
 
 // ===================================
 //             CardService
 // ===================================
+
 describe('CardService', function() {
-  const brushwaggJSON = require('./card-responses/brushwagg.json');
-  const juggernaughtJSON = require('./card-responses/juggernaught.json');
-  const forestJSON = require('./card-responses/forest.json');
-  const plainsJSON = require('./card-responses/plains.json');
-  const mountainJSON = require('./card-responses/mountain.json');
   fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=brushwagg', brushwaggJSON);
   fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=juggernaught', juggernaughtJSON);
   fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=forest', forestJSON);
   fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=plains', plainsJSON);
   fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=mountain', mountainJSON);
-  const timestamper = require('./timestamper.js');
   let card1, fetchCount1, card2, fetchCount2, leastTimeBetweenFetches;
 
   before(async function() {
@@ -43,14 +42,14 @@ describe('CardService', function() {
       };
       global.fetch = newFetch;
     })();
-    card1 = await RiptideLab.CardService.getCard('brushwagg');
+    card1 = await CardService.getCard('brushwagg');
     fetchCount1 = fetchMock.calls().length;
-    card2 = await RiptideLab.CardService.getCard('brushwagg');
+    card2 = await CardService.getCard('brushwagg');
     fetchCount2 = fetchMock.calls().length;
-    await RiptideLab.CardService.getCard('juggernaught');
-    await RiptideLab.CardService.getCard('forest');
-    await RiptideLab.CardService.getCard('plains');
-    await RiptideLab.CardService.getCard('mountain');
+    await CardService.getCard('juggernaught');
+    await CardService.getCard('forest');
+    await CardService.getCard('plains');
+    await CardService.getCard('mountain');
     leastTimeBetweenFetches = timestamper.getSmallestGap();
   });
 

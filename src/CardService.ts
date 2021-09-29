@@ -8,6 +8,15 @@ interface ScryfallCard {
   isNoCard?: boolean
 }
 
+interface CardPrecursor {
+  name: string,
+  uri: string,
+  imageURI: string,
+  isNoCard?: boolean
+}
+
+
+
 const CardService = (function(){
   const cardCache = CardCache();
   const externalService = ExternalService();
@@ -45,9 +54,11 @@ const CardService = (function(){
   }
 
 
-  function translateToRiptideLab(cardName: string, cardObject: ScryfallCard) {
-    let name: string, imageURI: string, isNoCard: boolean;
-    const uri = cardObject.scryfall_uri;
+  function translateToRiptideLab(cardName: string, cardObject: ScryfallCard): CardPrecursor {
+    const riptideCard: any = {
+      name: cardObject.name,
+      uri: cardObject.scryfall_uri
+    };
     // We need to deal with split cards and double-faced cards
     // Double-faced:
     // --> DO NOT have image_uris
@@ -56,16 +67,15 @@ const CardService = (function(){
     // --> DO have image_uris
     // --> DO have card_faces, but with no image_uris
     if (cardObject.image_uris) { // Must be a normal or split
-      name = cardObject.name;
-      imageURI = cardObject.image_uris.normal;
+      riptideCard.imageURI = cardObject.image_uris.normal;
     } else if (cardObject.card_faces) { // Must be double-faced
       const correctFace = getCorrectFace(cardName, cardObject.card_faces);
-      name = correctFace.name;
-      imageURI = correctFace.image_uris?.normal;
+      riptideCard.name = correctFace.name;
+      riptideCard.imageURI = correctFace.image_uris?.normal;
     }
     if (cardObject.isNoCard)
-      isNoCard = true;
-    return {name, uri, imageURI, isNoCard};
+      riptideCard.isNoCard = true;
+    return riptideCard;
   }
 
   function getCorrectFace(cardName: string, cardFaces: [ScryfallCard]) {
@@ -89,7 +99,7 @@ const CardService = (function(){
     } else {
       const cache = {};
       return {
-        add(cardName: string, card) {
+        add(cardName: string, card: ScryfallCard) {
           cache[cardName] = card;
         },
         get(cardName: string) {
@@ -103,7 +113,7 @@ const CardService = (function(){
       cleanCache();
 
       return {
-        add(cardName: string, card) {
+        add(cardName: string, card: ScryfallCard) {
           const exactName = card.name.toLowerCase();
           if (cardName !== exactName) // Fuzzy matched or double faced
             addFuzzy(cardName, exactName, card);
@@ -131,7 +141,7 @@ const CardService = (function(){
         }
       }
 
-      function addFuzzy(cardName: string, exactName: string, card) {
+      function addFuzzy(cardName: string, exactName: string, card: ScryfallCard) {
         // Card should always be a valid card because of how this is called, but
         // for safetly and extensibility...
         if (card.isNoCard) {
