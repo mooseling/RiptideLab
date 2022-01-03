@@ -391,7 +391,8 @@ class Base
 
     private static function getEmbeddedCardHtml($cardName, $extraClasses = '') {
       $safeCardName = htmlspecialchars($cardName);
-      return "<img class=\"RiptideLab--unloaded-card-image $extraClasses\" src=\"data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D\" data-card-name=\"$safeCardName\" />";
+      $style = self::getEmbeddedCardStyle($extraClasses);
+      return "<img class=\"RiptideLab--unloaded-card-image $extraClasses\" $style src=\"data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D\" data-card-name=\"$safeCardName\" />";
     }
 
     private static function getCardTagHtml($cardName, $displayText = null) {
@@ -399,5 +400,15 @@ class Base
       $safeDisplayText = is_string($displayText) ? htmlspecialchars($displayText) : $safeCardName;
       $queryString = htmlspecialchars(http_build_query(['q' => $cardName], null, '&', PHP_QUERY_RFC3986));
       return "<a class=RiptideLab--card-hover href=\"https://scryfall.com/search?$queryString\" target=_blank data-card-name=\"$safeCardName\">$safeDisplayText</a>";
+    }
+
+    private static function getEmbeddedCardStyle($classes) {
+      if ($classes === '') // Normal full sized card image
+        return 'style="width:223px;height:311.35px;"';
+      if ($classes === 'small')
+        return 'style="width:167px;height:233.163px;"';
+      if ($classes === 'in-cubedeck')
+        return 'style="width:160px;height:222.951px;"';
+      return '';
     }
 }
