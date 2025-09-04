@@ -175,7 +175,7 @@ RiptideLab.CardService = (function(){
 
       // When a card is not found, Scryfall returns a json response and a 404 status
       try {
-        const response = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(cardName));
+        const response = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(cardName) + ' not:reprint');
         card = await response.json(); // Had issues with blank responses on Edge
       } catch (error) {} // If such a thing happens, we just move on
 
