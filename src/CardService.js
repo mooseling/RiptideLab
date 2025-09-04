@@ -172,15 +172,22 @@ RiptideLab.CardService = (function(){
   function ExternalService() {
     return {get};
 
-    async function fetchScryfall(base, endpoint, cardName, useExact) {
-      if (useExact)
+    async function fetchScryfall(base, endpoint, cardName, useExact, cardSet=null) {
+      if (useExact) {
         // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
         cardName = '!"' + cardName + '"'
+      }
 
       let basicLandQuery = 's:' + basicLandSet;
       let originalPrintingQuery = 'not:reprint';
+      let filters;
 
-      let filters =  '(' + basicLandQuery + " or " + originalPrintingQuery + ')';
+      if (cardSet) {
+        filters = "s:" + cardSet + " order:set";
+      } else {
+        filters =  '(' + basicLandQuery + " or " + originalPrintingQuery + ')';
+      }
+
       let requestURL = base + endpoint + cardName + filters;
 
       try {
@@ -200,12 +207,22 @@ RiptideLab.CardService = (function(){
       let resp;
       let card;
 
+      // If a specific set is requested, it is of the form "cardName|set", eg. "temple garden|rtr"
+      if (cardName.includes("|")) {
+        let textData = cardName.split("|");
+        cardName = textData[0];
+        cardSet = textData[1];
+      } else {
+        cardSet = null;
+      }
+
       // When a card is not found, Scryfall returns a json response and a 404 status
       resp = await fetchScryfall(
         base=scryfallAPIBase,
         endpoint=scryfallQueryEndpoint,
         cardName=cardName,
-        useExact=true
+        useExact=true,
+        cardSet=cardSet
       );
 
       // If exact match fails, retry with fuzzy match
