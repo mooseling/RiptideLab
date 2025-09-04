@@ -101,7 +101,9 @@ RiptideLab.CardService = (function(){
             addExact(cardName, card);
         },
         get(cardName) {
+          console.log("Attempting to fetch ' + cardName + ' from cache.'")
           if (memoryCache[cardName])
+            console.log("    Found ' + cardName + ' from cache.'")
             return memoryCache[cardName];
           let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
           if (cardJSON) {
@@ -169,19 +171,47 @@ RiptideLab.CardService = (function(){
   function ExternalService() {
     return {get};
 
+    async function fetchScryfall(base, endpoint, cardName, useExact) {
+      if (useExact)
+        // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
+        cardName = '!"' + cardName + '"'
+
+      let extras =  ' (s:zen or not:reprint)'
+      let requestURL = base + endpoint + cardName + extras;
+
+
+
+      try {
+          console.log("Attempting to GET resource at " + requestURL);
+          const response = await fetch(requestURL);
+          card = await response.json(); // Had issues with blank responses on Edge
+        } catch (error) {} // If such a thing happens, we just move on
+
+      return card
+    }
 
     async function get(cardName) {
       let card;
 
       // When a card is not found, Scryfall returns a json response and a 404 status
-      try {
-        const response = await fetch('https://api.scryfall.com/cards/search?q=' + encodeURIComponent(cardName) + ' not:reprint');
-        card = await response.json(); // Had issues with blank responses on Edge
-      } catch (error) {} // If such a thing happens, we just move on
+      card = await fetchScryfall(
+        base='https://api.scryfall.com',
+        endpoint='/cards/search?q=',
+        cardName=cardName,
+        useExact=true
+      );
+
+      // If exact match fails, retry with fuzzy match
+      if (card == null)
+        card = await fetchScryfall(
+          base='https://api.scryfall.com',
+          endpoint='/cards/search?q=',
+          cardName=cardName,
+          useExact=false
+        );
 
       // The /cards/search endpoint returns a list of cards. Grab the first result.
       if (card) {
-        console.log(card);
         card = card["data"][0];
       }
 
