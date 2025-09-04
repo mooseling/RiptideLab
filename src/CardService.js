@@ -179,6 +179,12 @@ RiptideLab.CardService = (function(){
         card = await response.json(); // Had issues with blank responses on Edge
       } catch (error) {} // If such a thing happens, we just move on
 
+      // The /cards/search endpoint returns a list of cards. Grab the first result.
+      if (card) {
+        console.log(card);
+        card = card["data"][0];
+      }
+
       if (isValid(card))
         card = getLessDetailed(card); // Remove unused properties, since we're going to cache this
       else
