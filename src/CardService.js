@@ -3,6 +3,9 @@ RiptideLab.CardService = (function(){
   const externalService = ExternalService();
   const rateLimiter = RateLimiter();
   const currentFetches = {};
+  const basicLandSet='zen';
+  const scryfallAPIBase = 'https://api.scryfall.com';
+  const scryfallQueryEndpoint='/cards/search?q=';
 
   return {getCard};
 
@@ -101,9 +104,7 @@ RiptideLab.CardService = (function(){
             addExact(cardName, card);
         },
         get(cardName) {
-          console.log("Attempting to fetch ' + cardName + ' from cache.'")
           if (memoryCache[cardName])
-            console.log("    Found ' + cardName + ' from cache.'")
             return memoryCache[cardName];
           let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
           if (cardJSON) {
@@ -176,13 +177,13 @@ RiptideLab.CardService = (function(){
         // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
         cardName = '!"' + cardName + '"'
 
-      let extras =  ' (s:zen or not:reprint)'
-      let requestURL = base + endpoint + cardName + extras;
+      let basicLandQuery = 's:' + basicLandSet;
+      let originalPrintingQuery = 'not:reprint';
 
-
+      let filters =  '(' + basicLandQuery + " or " + originalPrintingQuery + ')';
+      let requestURL = base + endpoint + cardName + filters;
 
       try {
-          console.log("Attempting to GET resource at " + requestURL);
           const response = await fetch(requestURL);
           card = await response.json(); // Had issues with blank responses on Edge
         } catch (error) {} // If such a thing happens, we just move on
@@ -190,29 +191,38 @@ RiptideLab.CardService = (function(){
       return card
     }
 
+    function didScryfallReturnResults(obj) {
+      // Utility to check if Scyrfall returned results
+      return obj && Array.isArray(obj.data) && obj.data.length > 0
+    }
+
     async function get(cardName) {
+      let resp;
       let card;
 
       // When a card is not found, Scryfall returns a json response and a 404 status
-      card = await fetchScryfall(
-        base='https://api.scryfall.com',
-        endpoint='/cards/search?q=',
+      resp = await fetchScryfall(
+        base=scryfallAPIBase,
+        endpoint=scryfallQueryEndpoint,
         cardName=cardName,
         useExact=true
       );
 
       // If exact match fails, retry with fuzzy match
-      if (card == null)
-        card = await fetchScryfall(
-          base='https://api.scryfall.com',
-          endpoint='/cards/search?q=',
+      if (!didScryfallReturnResults(resp)) {
+        resp = await fetchScryfall(
+          base=scryfallAPIBase,
+          endpoint=scryfallQueryEndpoint,
           cardName=cardName,
           useExact=false
         );
+      }
 
       // The /cards/search endpoint returns a list of cards. Grab the first result.
-      if (card) {
-        card = card["data"][0];
+      if (didScryfallReturnResults(resp)) {
+        card = resp.data[0];
+      } else {
+        card = null;
       }
 
       if (isValid(card))
