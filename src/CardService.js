@@ -173,9 +173,10 @@ RiptideLab.CardService = (function(){
     return {get};
 
     async function fetchScryfall(base, endpoint, cardName, useExact) {
-      if (useExact)
+      if (useExact) {
         // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
         cardName = '!"' + cardName + '"'
+      }        
 
       let basicLandQuery = 's:' + basicLandSet;
       let originalPrintingQuery = 'not:reprint';
@@ -186,7 +187,10 @@ RiptideLab.CardService = (function(){
       try {
           const response = await fetch(requestURL);
           card = await response.json(); // Had issues with blank responses on Edge
-        } catch (error) {} // If such a thing happens, we just move on
+      } 
+      catch (error) {
+        // If error happened, we just move on
+      } 
 
       return card
     }
@@ -202,19 +206,19 @@ RiptideLab.CardService = (function(){
 
       // When a card is not found, Scryfall returns a json response and a 404 status
       resp = await fetchScryfall(
-        base=scryfallAPIBase,
-        endpoint=scryfallQueryEndpoint,
-        cardName=cardName,
-        useExact=true
+        base = scryfallAPIBase,
+        endpoint = scryfallQueryEndpoint,
+        cardName = cardName,
+        useExact = true
       );
 
       // If exact match fails, retry with fuzzy match
       if (!didScryfallReturnResults(resp)) {
         resp = await fetchScryfall(
-          base=scryfallAPIBase,
-          endpoint=scryfallQueryEndpoint,
-          cardName=cardName,
-          useExact=false
+          base = scryfallAPIBase,
+          endpoint = scryfallQueryEndpoint,
+          cardName = cardName,
+          useExact = false
         );
       }
 
