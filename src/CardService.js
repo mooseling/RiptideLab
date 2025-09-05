@@ -98,14 +98,17 @@ RiptideLab.CardService = (function(){
       return {
         add(cardName, card) {
           const exactName = card.name.toLowerCase();
-          if (cardName !== exactName) // Fuzzy matched or double faced
+          if (cardName !== exactName & !cardName.includes("|")) { // Fuzzy matched or double faced, but not exact set matches
             addFuzzy(cardName, exactName, card);
-          else
+          }
+          else {
             addExact(cardName, card);
+          }
         },
         get(cardName) {
-          if (memoryCache[cardName])
+          if (memoryCache[cardName]) {
             return memoryCache[cardName];
+          }
           let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
           if (cardJSON) {
             if (cardJSON.startsWith('fuzzyReference--')) // If this is a fuzzy reference, follow it
@@ -206,13 +209,16 @@ RiptideLab.CardService = (function(){
     async function get(cardName) {
       let resp;
       let card;
+      let cardBaseName;
+      let cardSet;
 
       // If a specific set is requested, it is of the form "cardName|set", eg. "temple garden|rtr"
       if (cardName.includes("|")) {
         let textData = cardName.split("|");
-        cardName = textData[0];
+        cardBaseName = textData[0];
         cardSet = textData[1];
       } else {
+        cardBaseName = cardName;
         cardSet = null;
       }
 
@@ -220,7 +226,7 @@ RiptideLab.CardService = (function(){
       resp = await fetchScryfall(
         base=scryfallAPIBase,
         endpoint=scryfallQueryEndpoint,
-        cardName=cardName,
+        cardName=cardBaseName,
         useExact=true,
         cardSet=cardSet
       );
@@ -230,7 +236,7 @@ RiptideLab.CardService = (function(){
         resp = await fetchScryfall(
           base=scryfallAPIBase,
           endpoint=scryfallQueryEndpoint,
-          cardName=cardName,
+          cardName=cardBaseName,
           useExact=false
         );
       }
