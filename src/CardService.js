@@ -3,6 +3,9 @@ RiptideLab.CardService = (function(){
   const externalService = ExternalService();
   const rateLimiter = RateLimiter();
   const currentFetches = {};
+  const basicLandSet='zen';
+  const scryfallAPIBase = 'https://api.scryfall.com';
+  const scryfallQueryEndpoint='/cards/search?q=';
 
   return {getCard};
 
@@ -95,14 +98,17 @@ RiptideLab.CardService = (function(){
       return {
         add(cardName, card) {
           const exactName = card.name.toLowerCase();
-          if (cardName !== exactName) // Fuzzy matched or double faced
+          if (cardName !== exactName && !cardName.includes("|")) { // Fuzzy matched or double faced, but not exact set matches
             addFuzzy(cardName, exactName, card);
-          else
+          }
+          else {
             addExact(cardName, card);
+          }
         },
         get(cardName) {
-          if (memoryCache[cardName])
+          if (memoryCache[cardName]) {
             return memoryCache[cardName];
+          }
           let cardJSON = localStorage.getItem(`RiptideLab--${cardName}`);
           if (cardJSON) {
             if (cardJSON.startsWith('fuzzyReference--')) // If this is a fuzzy reference, follow it
@@ -169,15 +175,77 @@ RiptideLab.CardService = (function(){
   function ExternalService() {
     return {get};
 
+    async function fetchScryfall(base, endpoint, cardName, useExact, cardSet=null) {
+      if (useExact) {
+        // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
+        cardName = `!"${cardName}"`;
+      }
+
+      let basicLandQuery = 's:' + basicLandSet;
+      let originalPrintingQuery = 'not:reprint';
+      let filters;
+
+      if (cardSet) {
+        filters = `s:${cardSet} order:set`;
+      } else {
+        filters =  `(${basicLandQuery} or ${originalPrintingQuery})`;
+      }
+
+      const requestURL = base + endpoint + cardName + filters;
+
+      try {
+          const response = await fetch(requestURL);
+          card = await response.json(); // Had issues with blank responses on Edge
+        } catch (error) {} // If such a thing happens, we just move on
+
+      return card
+    }
+
+    function didScryfallReturnResults(obj) {
+      // Utility to check if Scyrfall returned results
+      return obj && Array.isArray(obj.data) && obj.data.length > 0
+    }
 
     async function get(cardName) {
       let card;
+      let cardBaseName;
+      let cardSet;
+
+      // If a specific set is requested, it is of the form "cardName|set", eg. "temple garden|rtr"
+      if (cardName.includes("|")) {
+        let textData = cardName.split("|");
+        cardBaseName = textData[0];
+        cardSet = textData[1];
+      } else {
+        cardBaseName = cardName;
+        cardSet = null;
+      }
 
       // When a card is not found, Scryfall returns a json response and a 404 status
-      try {
-        const response = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(cardName));
-        card = await response.json(); // Had issues with blank responses on Edge
-      } catch (error) {} // If such a thing happens, we just move on
+      let resp = await fetchScryfall(
+        scryfallAPIBase,
+        scryfallQueryEndpoint,
+        cardBaseName,
+        true,
+        cardSet
+      );
+
+      // If exact match fails, retry with fuzzy match
+      if (!didScryfallReturnResults(resp)) {
+        resp = await fetchScryfall(
+          scryfallAPIBase,
+          scryfallQueryEndpoint,
+          cardBaseName,
+          false
+        );
+      }
+
+      // The /cards/search endpoint returns a list of cards. Grab the first result.
+      if (didScryfallReturnResults(resp)) {
+        card = resp.data[0];
+      } else {
+        card = null;
+      }
 
       if (isValid(card))
         card = getLessDetailed(card); // Remove unused properties, since we're going to cache this
