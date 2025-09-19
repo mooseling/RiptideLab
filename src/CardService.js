@@ -173,7 +173,7 @@ RiptideLab.CardService = (function(){
     return {get};
 
     async function fetchScryfall(base, endpoint, cardName, useExact) {
-      if (useExact)
+      if (useExact) {
         // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
         cardName = `!"${cardName}"`
 
@@ -186,7 +186,10 @@ RiptideLab.CardService = (function(){
       try {
           const response = await fetch(requestURL);
           card = await response.json(); // Had issues with blank responses on Edge
-        } catch (error) {} // If such a thing happens, we just move on
+      } 
+      catch (error) {
+        // If error happened, we just move on
+      } 
 
       return card
     }
