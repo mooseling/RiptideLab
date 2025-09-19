@@ -98,7 +98,7 @@ RiptideLab.CardService = (function(){
       return {
         add(cardName, card) {
           const exactName = card.name.toLowerCase();
-          if (cardName !== exactName & !cardName.includes("|")) { // Fuzzy matched or double faced, but not exact set matches
+          if (cardName !== exactName && !cardName.includes("|")) { // Fuzzy matched or double faced, but not exact set matches
             addFuzzy(cardName, exactName, card);
           }
           else {
