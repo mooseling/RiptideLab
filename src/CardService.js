@@ -224,20 +224,20 @@ RiptideLab.CardService = (function(){
 
       // When a card is not found, Scryfall returns a json response and a 404 status
       resp = await fetchScryfall(
-        base=scryfallAPIBase,
-        endpoint=scryfallQueryEndpoint,
-        cardName=cardBaseName,
-        useExact=true,
-        cardSet=cardSet
+        scryfallAPIBase,
+        scryfallQueryEndpoint,
+        cardBaseName,
+        true,
+        cardSet
       );
 
       // If exact match fails, retry with fuzzy match
       if (!didScryfallReturnResults(resp)) {
         resp = await fetchScryfall(
-          base=scryfallAPIBase,
-          endpoint=scryfallQueryEndpoint,
-          cardName=cardBaseName,
-          useExact=false
+          scryfallAPIBase,
+          scryfallQueryEndpoint,
+          cardBaseName,
+          false
         );
       }
 
