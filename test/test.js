@@ -25,11 +25,11 @@ describe('CardService', function() {
   const forestJSON = require('./card-responses/forest.json');
   const plainsJSON = require('./card-responses/plains.json');
   const mountainJSON = require('./card-responses/mountain.json');
-  fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=brushwagg', brushwaggJSON);
-  fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=juggernaught', juggernaughtJSON);
-  fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=forest', forestJSON);
-  fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=plains', plainsJSON);
-  fetchMock.mock('https://api.scryfall.com/cards/named?fuzzy=mountain', mountainJSON);
+  fetchMock.mock('end:brushwagg%22(s:zen%20or%20not:reprint)', brushwaggJSON);
+  fetchMock.mock('end:juggernaught%22(s:zen%20or%20not:reprint)', juggernaughtJSON);
+  fetchMock.mock('end:forest%22(s:zen%20or%20not:reprint)', forestJSON);
+  fetchMock.mock('end:plains%22(s:zen%20or%20not:reprint)', plainsJSON);
+  fetchMock.mock('end:mountain%22(s:zen%20or%20not:reprint)', mountainJSON);
   const timestamper = require('./timestamper.js');
   let card1, fetchCount1, card2, fetchCount2, leastTimeBetweenFetches;
 
@@ -54,7 +54,7 @@ describe('CardService', function() {
     leastTimeBetweenFetches = timestamper.getSmallestGap();
   });
 
-  it('returns Brushwagg', () => assert(card1.name === 'Brushwagg', 'Returned card name: ' + card1.name));
+  it('returns Brushwagg', () => assert(card1.name?.toLowerCase() === 'brushwagg', 'Returned card name: ' + card1.name));
   it('calls fetch for first request', () => assert(fetchCount1 === 1, 'Fetch count 1: ' + fetchCount1));
   it('doesn\'t call fetch for second request', () => assert(fetchCount2 === 1, 'Fetch count 2: ' + fetchCount2));
   it('...but does return the same Brushwagg', () => assert(
