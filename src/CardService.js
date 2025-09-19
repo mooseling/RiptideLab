@@ -175,12 +175,12 @@ RiptideLab.CardService = (function(){
     async function fetchScryfall(base, endpoint, cardName, useExact) {
       if (useExact)
         // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
-        cardName = '!"' + cardName + '"'
+        cardName = `!"${cardName}"`
 
-      let basicLandQuery = 's:' + basicLandSet;
+      let basicLandQuery = `s:${basicLandSet}`;
       let originalPrintingQuery = 'not:reprint';
 
-      let filters =  '(' + basicLandQuery + " or " + originalPrintingQuery + ')';
+      let filters =  `(${basicLandQuery} or ${originalPrintingQuery})`;
       let requestURL = base + endpoint + cardName + filters;
 
       try {
