@@ -200,11 +200,8 @@ RiptideLab.CardService = (function(){
     }
 
     async function get(cardName) {
-      let resp;
-      let card;
-
       // When a card is not found, Scryfall returns a json response and a 404 status
-      resp = await fetchScryfall(
+      let resp = await fetchScryfall(
         scryfallAPIBase,
         scryfallQueryEndpoint,
         cardName,
@@ -221,6 +218,7 @@ RiptideLab.CardService = (function(){
         );
       }
 
+      let card;
       // The /cards/search endpoint returns a list of cards. Grab the first result.
       if (didScryfallReturnResults(resp)) {
         card = resp.data[0];
