@@ -176,6 +176,7 @@ RiptideLab.CardService = (function(){
       if (useExact) {
         // Wrap query in scryfall syntax for exact matching, eg. !"cardname". 
         cardName = `!"${cardName}"`
+      }
 
       let basicLandQuery = `s:${basicLandSet}`;
       let originalPrintingQuery = 'not:reprint';
