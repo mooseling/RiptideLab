@@ -21,12 +21,12 @@ describe('RiptideLab', function() {
 // ===================================
 describe('CardService', function() {
   const brushwaggJSON = require('./card-responses/brushwagg.json');
-  const juggernaughtJSON = require('./card-responses/juggernaught.json');
+  const juggernautJSON = require('./card-responses/juggernaut.json');
   const forestJSON = require('./card-responses/forest.json');
   const plainsJSON = require('./card-responses/plains.json');
   const mountainJSON = require('./card-responses/mountain.json');
   fetchMock.mock('end:brushwagg%22(s:zen%20or%20not:reprint)', brushwaggJSON);
-  fetchMock.mock('end:juggernaught%22(s:zen%20or%20not:reprint)', juggernaughtJSON);
+  fetchMock.mock('end:juggernaut%22(s:zen%20or%20not:reprint)', juggernautJSON);
   fetchMock.mock('end:forest%22(s:zen%20or%20not:reprint)', forestJSON);
   fetchMock.mock('end:plains%22(s:zen%20or%20not:reprint)', plainsJSON);
   fetchMock.mock('end:mountain%22(s:zen%20or%20not:reprint)', mountainJSON);
@@ -47,14 +47,14 @@ describe('CardService', function() {
     fetchCount1 = fetchMock.calls().length;
     card2 = await RiptideLab.CardService.getCard('brushwagg');
     fetchCount2 = fetchMock.calls().length;
-    await RiptideLab.CardService.getCard('juggernaught');
+    await RiptideLab.CardService.getCard('juggernaut');
     await RiptideLab.CardService.getCard('forest');
     await RiptideLab.CardService.getCard('plains');
     await RiptideLab.CardService.getCard('mountain');
     leastTimeBetweenFetches = timestamper.getSmallestGap();
   });
 
-  it('returns Brushwagg', () => assert(card1.name?.toLowerCase() === 'brushwagg', 'Returned card name: ' + card1.name));
+  it('returns Brushwagg', () => assert(card1.name === 'Brushwagg', 'Returned card name: ' + card1.name));
   it('calls fetch for first request', () => assert(fetchCount1 === 1, 'Fetch count 1: ' + fetchCount1));
   it('doesn\'t call fetch for second request', () => assert(fetchCount2 === 1, 'Fetch count 2: ' + fetchCount2));
   it('...but does return the same Brushwagg', () => assert(
