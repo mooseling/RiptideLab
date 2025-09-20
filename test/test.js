@@ -20,16 +20,11 @@ describe('RiptideLab', function() {
 //             CardService
 // ===================================
 describe('CardService', function() {
-  const brushwaggJSON = require('./card-responses/brushwagg.json');
-  const juggernautJSON = require('./card-responses/juggernaut.json');
-  const forestJSON = require('./card-responses/forest.json');
-  const plainsJSON = require('./card-responses/plains.json');
-  const mountainJSON = require('./card-responses/mountain.json');
-  mock('brushwagg', brushwaggJSON);
-  mock('juggernaut', juggernautJSON);
-  mock('forest', forestJSON);
-  mock('plains', plainsJSON);
-  mock('mountain', mountainJSON);
+  mock('brushwagg', loadCardResponse('brushwagg'));
+  mock('juggernaut', loadCardResponse('juggernaut'));
+  mock('forest', loadCardResponse('forest'));
+  mock('plains', loadCardResponse('plains'));
+  mock('mountain', loadCardResponse('mountain'));
   let card1, fetchCount1, card2, fetchCount2, leastTimeBetweenFetches;
 
   before(async function() {
