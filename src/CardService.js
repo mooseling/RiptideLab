@@ -184,6 +184,7 @@ RiptideLab.CardService = (function(){
       let filters =  `(${basicLandQuery} or ${originalPrintingQuery})`;
       let requestURL = base + endpoint + cardName + filters;
 
+      let card;
       try {
           const response = await fetch(requestURL);
           card = await response.json(); // Had issues with blank responses on Edge
@@ -192,7 +193,7 @@ RiptideLab.CardService = (function(){
         // If error happened, we just move on
       } 
 
-      return card
+      return card;
     }
 
     function didScryfallReturnResults(obj) {
