@@ -2,7 +2,7 @@
 
 const assert = require('chai').assert;
 global.document = require('./document-mock.js');
-const fetchMock = require('fetch-mock');
+const {mock, calls, getSmallestGap} = require('./simple-fetch-mock.js');
 const RiptideLab = require('../build/RiptideLab.node.js');
 
 describe('RiptideLab', function() {
@@ -25,33 +25,23 @@ describe('CardService', function() {
   const forestJSON = require('./card-responses/forest.json');
   const plainsJSON = require('./card-responses/plains.json');
   const mountainJSON = require('./card-responses/mountain.json');
-  fetchMock.mock('end:brushwagg%22(s:zen%20or%20not:reprint)', brushwaggJSON);
-  fetchMock.mock('end:juggernaut%22(s:zen%20or%20not:reprint)', juggernautJSON);
-  fetchMock.mock('end:forest%22(s:zen%20or%20not:reprint)', forestJSON);
-  fetchMock.mock('end:plains%22(s:zen%20or%20not:reprint)', plainsJSON);
-  fetchMock.mock('end:mountain%22(s:zen%20or%20not:reprint)', mountainJSON);
-  const timestamper = require('./timestamper.js');
+  mock('brushwagg', brushwaggJSON);
+  mock('juggernaut', juggernautJSON);
+  mock('forest', forestJSON);
+  mock('plains', plainsJSON);
+  mock('mountain', mountainJSON);
   let card1, fetchCount1, card2, fetchCount2, leastTimeBetweenFetches;
 
   before(async function() {
-    // Plug in a time-stamp on every fetch call
-    (function(){
-      const nativeFetch = global.fetch;
-      const newFetch = function(...args) {
-        timestamper.stamp();
-        return nativeFetch(...args);
-      };
-      global.fetch = newFetch;
-    })();
     card1 = await RiptideLab.CardService.getCard('brushwagg');
-    fetchCount1 = fetchMock.calls().length;
+    fetchCount1 = calls.length;
     card2 = await RiptideLab.CardService.getCard('brushwagg');
-    fetchCount2 = fetchMock.calls().length;
+    fetchCount2 = calls.length;
     await RiptideLab.CardService.getCard('juggernaut');
     await RiptideLab.CardService.getCard('forest');
     await RiptideLab.CardService.getCard('plains');
     await RiptideLab.CardService.getCard('mountain');
-    leastTimeBetweenFetches = timestamper.getSmallestGap();
+    leastTimeBetweenFetches = getSmallestGap();
   });
 
   it('returns Brushwagg', () => assert(card1.name === 'Brushwagg', 'Returned card name: ' + card1.name));
