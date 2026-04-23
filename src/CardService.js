@@ -266,7 +266,7 @@ RiptideLab.CardService = (function(){
   //                     RateLimiter
   // ====================================================
   function RateLimiter() {
-    const interval = 100;
+    const interval = 600;
     let lastTimeStamp = null;
     let queueHandler = null;
     const queue = [];
